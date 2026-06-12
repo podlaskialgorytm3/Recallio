@@ -14,21 +14,41 @@ interface QuestionSet {
   };
 }
 
+interface ActiveSession {
+  id: string;
+  questionSetId: string;
+  status: string;
+  rounds: { roundNumber: number }[];
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [sets, setSets] = useState<QuestionSet[]>([]);
+  const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [resumingId, setResumingId] = useState<string | null>(null);
 
-  const fetchSets = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const res = await fetch("/api/sets");
-      if (res.ok) {
-        const data = await res.json();
+      const [setsRes, historyRes] = await Promise.all([
+        fetch("/api/sets"),
+        fetch("/api/history"),
+      ]);
+
+      if (setsRes.ok) {
+        const data = await setsRes.json();
         setSets(data);
       }
+
+      if (historyRes.ok) {
+        const historyData = await historyRes.json();
+        setActiveSessions(
+          historyData.filter((s: ActiveSession) => s.status === "active")
+        );
+      }
     } catch (error) {
-      console.error("Error fetching sets:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -40,9 +60,9 @@ export default function DashboardPage() {
       return;
     }
     if (status === "authenticated") {
-      fetchSets();
+      fetchData();
     }
-  }, [status, router, fetchSets]);
+  }, [status, router, fetchData]);
 
   const handleStartSession = async (setId: string) => {
     try {
@@ -57,6 +77,42 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error("Error creating session:", error);
+    }
+  };
+
+  const handleResumeSession = async (sessionId: string) => {
+    setResumingId(sessionId);
+    try {
+      const res = await fetch(`/api/session/${sessionId}/resume`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+
+        sessionStorage.setItem(
+          `session_${sessionId}_round`,
+          JSON.stringify({ round: data.round, questions: data.questions })
+        );
+        sessionStorage.setItem(
+          `session_${sessionId}_questionIndex`,
+          data.resumeIndex.toString()
+        );
+        sessionStorage.setItem(
+          `session_${sessionId}_answers`,
+          JSON.stringify(data.existingAnswers || [])
+        );
+
+        if (data.allAnswered) {
+          router.push(`/session/${sessionId}/round-summary`);
+        } else {
+          router.push(`/session/${sessionId}/question`);
+        }
+      }
+    } catch (error) {
+      console.error("Error resuming session:", error);
+    } finally {
+      setResumingId(null);
     }
   };
 
@@ -108,46 +164,76 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="session-grid">
-          {sets.map((set, index) => (
-            <div
-              key={set.id}
-              className="card animate-fade-in-up"
-              style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <h3>{set.name}</h3>
-                <button
-                  onClick={() => handleDeleteSet(set.id)}
-                  className="btn btn-danger"
-                  style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem" }}
-                  title="Usuń zestaw"
-                >
-                  🗑️
-                </button>
+          {sets.map((set, index) => {
+            const activeSession = activeSessions.find(
+              (s) => s.questionSetId === set.id
+            );
+
+            return (
+              <div
+                key={set.id}
+                className="card animate-fade-in-up"
+                style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <h3>{set.name}</h3>
+                  <button
+                    onClick={() => handleDeleteSet(set.id)}
+                    className="btn btn-danger"
+                    style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem" }}
+                    title="Usuń zestaw"
+                  >
+                    🗑️
+                  </button>
+                </div>
+                <div className="session-card-meta">
+                  <span>📝 {set._count.questions} pytań</span>
+                  <span className="dot" />
+                  <span>
+                    📅{" "}
+                    {new Date(set.createdAt).toLocaleDateString("pl-PL", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div style={{ marginTop: "var(--space-lg)", display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
+                  {activeSession ? (
+                    <button
+                      onClick={() => handleResumeSession(activeSession.id)}
+                      className="btn btn-success"
+                      style={{ flex: 1 }}
+                      disabled={resumingId === activeSession.id}
+                    >
+                      {resumingId === activeSession.id ? (
+                        <>
+                          <span className="loading-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+                          Wznawianie...
+                        </>
+                      ) : (
+                        "▶️ Kontynuuj sesję"
+                      )}
+                    </button>
+                  ) : null}
+                  <button
+                    onClick={() => handleStartSession(set.id)}
+                    className="btn btn-primary"
+                    style={{ flex: 1 }}
+                  >
+                    🚀 {activeSession ? "Nowa sesja" : "Rozpocznij sesję"}
+                  </button>
+                  <Link
+                    href={`/study/${set.id}`}
+                    className="btn btn-secondary"
+                    style={{ flex: 1, textAlign: "center" }}
+                  >
+                    📖 Tryb nauki
+                  </Link>
+                </div>
               </div>
-              <div className="session-card-meta">
-                <span>📝 {set._count.questions} pytań</span>
-                <span className="dot" />
-                <span>
-                  📅{" "}
-                  {new Date(set.createdAt).toLocaleDateString("pl-PL", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-              <div style={{ marginTop: "var(--space-lg)", display: "flex", gap: "var(--space-sm)" }}>
-                <button
-                  onClick={() => handleStartSession(set.id)}
-                  className="btn btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  🚀 Rozpocznij sesję
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
