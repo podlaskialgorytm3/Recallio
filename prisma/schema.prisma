@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  questionSets QuestionSet[]
+  sessions     Session[]
+}
+
+model QuestionSet {
+  id        String     @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions Question[]
+  sessions  Session[]
+
+  @@index([userId])
+}
+
+model Question {
+  id            String        @id @default(cuid())
+  questionSetId String
+  externalId    Int
+  question      String
+  answer        String        @db.Text
+  questionSet   QuestionSet   @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  roundAnswers  RoundAnswer[]
+
+  @@index([questionSetId])
+}
+
+model Session {
+  id            String      @id @default(cuid())
+  userId        String
+  questionSetId String
+  mode          String      @default("sequential") // "random" | "sequential"
+  threshold     Int         @default(70)
+  status        String      @default("active") // "active" | "finished"
+  createdAt     DateTime    @default(now())
+  completedAt   DateTime?
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionSet   QuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  rounds        Round[]
+
+  @@index([userId])
+  @@index([questionSetId])
+}
+
+model Round {
+  id           String        @id @default(cuid())
+  sessionId    String
+  roundNumber  Int
+  averageScore Float?
+  createdAt    DateTime      @default(now())
+  completedAt  DateTime?
+  session      Session       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  answers      RoundAnswer[]
+
+  @@index([sessionId])
+}
+
+model RoundAnswer {
+  id         String   @id @default(cuid())
+  roundId    String
+  questionId String
+  userAnswer String   @db.Text
+  score      Int?     // 0-100
+  feedback   String?  @db.Text
+  answeredAt DateTime @default(now())
+  round      Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([roundId])
+  @@index([questionId])
+}

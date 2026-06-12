@@ -1,0 +1,40 @@
+Masz do napisania aplikacje polegająca na tym, że będziesz pobierać pytania i odpowiedzi
+z odpowiednich plików typu .json
+Będą odpowiadały one formatom:
+[
+    {
+        id: 1,
+        question: "Co to jest ARP?",
+        answer: "ARP jest protokołem sieciowym, który służy do tłumaczenia adresów IP na adresy MAC w sieci lokalnej."
+    }
+]
+
+Ogólnie użytkownik logując się na tej apce będzie mógł wybrać:
+WGRAJ PLIK JSON do nauki.
+
+Jaki jest scenariusz działania:
+1. Użytkownik wstawia JSON do nauki.
+2. System przyjmuje to do siebie do swojej bazy i generuje pytania. 
+Ilość pytań jest równa ilości, wszystkich pytań  z pliku JSON.
+3. Po poprawnym przyjęciu pliku JSON, system pyta się użytkownika czy
+losujemy pytania, czy bierzemy po kolei. Dodatkowo użytkownik ustanawia próg kolejnej tury.
+[KOLEJNA TURA = Jeżeli pytanie otrzymało mniej niż x% to iterujemy jeszcze raz, ale tylko po tych pytaniach,
+które miały mniej niż x%.  Tak aby się bardziej nauczyć]
+4. Po wybraniu, system wyświetla piersze pytanie.
+5. Użytkownik podaje odpowiedź.
+6. System porównuje podaną odpowiedź z odpowiedzią z pliku .json.
+7. System ocenia poprawność odpowiedzi. 
+8. System zwraca wynik odpowiedzi w formie tekstwoej, że czego nie uwzględniłem. Jest to około 2/3 zdania. 
+Dodatkowo wstawia ocene od 0 do 100% poprawności pokrycia odpowiedzi. 
+9. Po zakończonej turze System zwraca średni wynik z każdych odpowiedzi i zachęca do wzięcia udziału w drugiej turze,
+jeżeli jakieś pytania miały wynik poniżej progu. Ponieważ tylko te będą tam się znajdować. - Minimalnie może być jedna tura, jeżeli 
+użytkownik odpowie na wszystkie pytania powyżej progu. Lub może być nieskończenie wiele, dopóki wszystkie pytania będą odpowiedziane w odpowiednim progu.
+
+[KONTYNUUJ, JEŚLI WYZNACZONO PROGI TURY PRZEZ UŻYTKOWNIKA]
+System zapisuje w bazie danych historię każdej tury, każde pytanie oraz odpowiedź i porównanie z odpowiedzią z pliku .json.
+Użytkownik może sobie to podejrzeć wchodząc w odpowiednie okno.
+
+Technologie:
+Next.js 
+PostgreSQL
+
