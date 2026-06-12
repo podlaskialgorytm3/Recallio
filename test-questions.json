@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "question": "Co to jest model OSI? Dlaczego jest użyteczny?",
+    "answer": "Model OSI to 7-warstwowy referencyjny model komunikacji sieciowej standaryzujący działanie sieci. Jest użyteczny, ponieważ porządkuje komunikację (podział na niezależne warstwy) i pozwala na bezproblemową współpracę sprzętu i oprogramowania pochodzącego od różnych producentów."
+  },
+  {
+    "id": 2,
+    "question": "Co oznaczają akronimy: PAN, LAN, MAN, WAN, GAN?",
+    "answer": "PAN (Personal Area Network) - sieć osobista. LAN (Local Area Network) - sieć lokalna. MAN (Metropolitan Area Network) - sieć miejska. WAN (Wide Area Network) - sieć rozległa. GAN (Global Area Network) - sieć globalna."
+  },
+  {
+    "id": 3,
+    "question": "Do czego służy protokół DHCP?",
+    "answer": "DHCP (Dynamic Host Configuration Protocol) służy do zautomatyzowanej konfiguracji hostów w sieci. Działa wg schematu DORA (Discover, Offer, Request, Acknowledge). Klient otrzymuje: adres IP, maskę sieciową, adres bramy domyślnej."
+  }
+]

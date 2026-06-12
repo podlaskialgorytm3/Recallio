@@ -12,7 +12,7 @@ export async function gradeAnswer(
   correctAnswer: string,
   userAnswer: string
 ): Promise<GradeResult> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `Jesteś nauczycielem oceniającym odpowiedź studenta. Porównaj odpowiedź studenta z wzorcową odpowiedzią.
 
