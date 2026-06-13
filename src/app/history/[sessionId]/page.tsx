@@ -20,6 +20,7 @@ interface RoundAnswer {
   userAnswer: string;
   score: number | null;
   feedback: string | null;
+  answeredAt: string;
   question: {
     id: string;
     externalId: number;
@@ -254,6 +255,16 @@ export default function SessionDetailPage() {
                             </span>
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
+                            <span style={{ fontSize: "0.75rem", color: "var(--text-tertiary)" }}>
+                              🕐 {new Date(answer.answeredAt).toLocaleString("pl-PL", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              })}
+                            </span>
                             <span style={{ fontWeight: 700, color: passed ? "var(--success)" : "var(--error)" }}>
                               {answer.score ?? 0}%
                             </span>
