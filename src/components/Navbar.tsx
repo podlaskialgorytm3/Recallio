@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -16,7 +17,7 @@ export default function Navbar() {
     <nav className="navbar">
       <Link href="/dashboard" className="navbar-logo">
         <span className="logo-icon">🧠</span>
-        <span className="text-gradient">AnswearChecker</span>
+        <span className="text-gradient">Recallio</span>
       </Link>
 
       <div className="navbar-links">
@@ -41,6 +42,7 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-user">
+        <ThemeToggle />
         <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
           {session.user?.email}
         </span>

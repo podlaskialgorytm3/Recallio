@@ -69,6 +69,37 @@
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* ========== LIGHT THEME ========== */
+
+[data-theme="light"] {
+  /* Colors - Light Theme */
+  --bg-primary: #f5f5fa;
+  --bg-secondary: #eeeef5;
+  --bg-tertiary: #e4e4f0;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-glass: rgba(0, 0, 0, 0.04);
+  --bg-glass-hover: rgba(0, 0, 0, 0.07);
+
+  /* Text Colors */
+  --text-primary: #1a1a2e;
+  --text-secondary: #5a5a7a;
+  --text-tertiary: #8a8aaa;
+  --text-inverse: #f5f5fa;
+
+  /* Border Colors */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --border-accent: rgba(139, 92, 246, 0.25);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.1);
+  --shadow-glow-strong: 0 0 60px rgba(139, 92, 246, 0.15);
+}
+
 /* Reset */
 *,
 *::before,
@@ -91,6 +122,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Background gradient effect */
@@ -107,6 +139,14 @@ body::before {
     radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.03) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
+  transition: background 0.3s ease;
+}
+
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.02) 0%, transparent 70%);
 }
 
 #__next,
@@ -362,6 +402,11 @@ h3 {
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme="light"] .navbar {
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .navbar-logo {
@@ -1154,6 +1199,110 @@ tbody tr:hover {
 
 tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* ========== THEME TOGGLE ========== */
+
+.theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle-track {
+  position: relative;
+  width: 56px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #1a1a3e 0%, #2d2d5e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  transition: background 0.4s ease;
+  border: 1px solid var(--border);
+}
+
+.theme-toggle-track.light {
+  background: linear-gradient(135deg, #87CEEB 0%, #e0f0ff 100%);
+}
+
+.theme-toggle-icon {
+  font-size: 0.85rem;
+  z-index: 1;
+  transition: opacity 0.3s ease;
+  line-height: 1;
+}
+
+.theme-toggle-track.dark .theme-toggle-sun {
+  opacity: 0.4;
+}
+
+.theme-toggle-track.dark .theme-toggle-moon {
+  opacity: 1;
+}
+
+.theme-toggle-track.light .theme-toggle-sun {
+  opacity: 1;
+}
+
+.theme-toggle-track.light .theme-toggle-moon {
+  opacity: 0.4;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.35s cubic-bezier(0.68, -0.3, 0.27, 1.3);
+}
+
+.theme-toggle-track.light .theme-toggle-thumb {
+  transform: translateX(26px);
+  background: #fff9c4;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Light theme - additional card/component overrides */
+
+[data-theme="light"] .card {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="light"] .card-static {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .auth-card {
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="light"] .toast {
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="light"] .study-card {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .study-card.expanded {
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="light"] .feedback-card {
+  box-shadow: var(--shadow-sm);
 }
 
 /* ========== RESPONSIVE ========== */
