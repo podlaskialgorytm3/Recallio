@@ -12,7 +12,20 @@ export async function gradeAnswer(
   correctAnswer: string,
   userAnswer: string
 ): Promise<GradeResult> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "object" as const,
+        properties: {
+          score: { type: "number" as const },
+          feedback: { type: "string" as const },
+        },
+        required: ["score", "feedback"],
+      },
+    },
+  });
 
   const prompt = `Jesteś nauczycielem oceniającym odpowiedź studenta. Porównaj odpowiedź studenta z wzorcową odpowiedzią.
 
@@ -30,23 +43,52 @@ Oceń odpowiedź studenta w skali 0-100, gdzie:
 - 50 = częściowo poprawna, brakuje kluczowych elementów
 - 100 = w pełni poprawna, zawiera wszystkie kluczowe informacje
 
-Zwróć WYŁĄCZNIE odpowiedź w formacie JSON (bez markdown, bez backticks):
-{"score": <liczba 0-100>, "feedback": "<2-3 zdania po polsku opisujące co student pominął lub podał błędnie, lub pochwała jeśli odpowiedź jest dobra>"}`;
+Odpowiedz w JSON z polami "score" (liczba 0-100) i "feedback" (2-3 zdania po polsku opisujące co student pominął lub podał błędnie, lub pochwała jeśli odpowiedź jest dobra).`;
 
   try {
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text().trim();
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
+    // Attempt 1: direct JSON.parse (should work with responseMimeType)
+    try {
+      const parsed = JSON.parse(text);
       return {
         score: Math.min(100, Math.max(0, Math.round(parsed.score))),
         feedback: parsed.feedback || "Brak komentarza.",
       };
+    } catch {
+      // Attempt 2: extract JSON object from text and sanitize
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        // Sanitize: replace unescaped control characters inside string values
+        const sanitized = jsonMatch[0].replace(
+          /("(?:[^"\\]|\\.)*")|[\n\r\t]/g,
+          (match, quoted) => (quoted ? quoted : " ")
+        );
+        try {
+          const parsed = JSON.parse(sanitized);
+          return {
+            score: Math.min(100, Math.max(0, Math.round(parsed.score))),
+            feedback: parsed.feedback || "Brak komentarza.",
+          };
+        } catch {
+          // Attempt 3: regex extraction as last resort
+          const scoreMatch = text.match(/"score"\s*:\s*(\d+)/);
+          const feedbackMatch = text.match(/"feedback"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          if (scoreMatch) {
+            return {
+              score: Math.min(100, Math.max(0, Math.round(Number(scoreMatch[1])))),
+              feedback: feedbackMatch
+                ? feedbackMatch[1].replace(/\\"/g, '"').replace(/\\n/g, " ")
+                : "Brak komentarza.",
+            };
+          }
+        }
+      }
     }
 
+    console.error("Could not parse Gemini response:", text);
     return {
       score: 0,
       feedback: "Nie udało się przetworzyć odpowiedzi AI. Spróbuj ponownie.",
