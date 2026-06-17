@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function SessionConfigPage() {
   const { data: authSession, status } = useSession();
@@ -18,6 +19,11 @@ export default function SessionConfigPage() {
     questionSet: { name: string; questions: { id: string }[] };
   } | null>(null);
 
+  // AI validation state
+  const [aiStatus, setAiStatus] = useState<"checking" | "valid" | "invalid">("checking");
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiModel, setAiModel] = useState<string | null>(null);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -25,6 +31,7 @@ export default function SessionConfigPage() {
     }
     if (status === "authenticated") {
       fetchSession();
+      validateAI();
     }
   }, [status]);
 
@@ -44,7 +51,27 @@ export default function SessionConfigPage() {
     }
   };
 
+  const validateAI = async () => {
+    setAiStatus("checking");
+    setAiError(null);
+    try {
+      const res = await fetch("/api/settings/validate");
+      const data = await res.json();
+      if (data.valid) {
+        setAiStatus("valid");
+        setAiModel(data.model);
+      } else {
+        setAiStatus("invalid");
+        setAiError(data.message);
+      }
+    } catch {
+      setAiStatus("invalid");
+      setAiError("Nie udało się sprawdzić połączenia z AI.");
+    }
+  };
+
   const handleStart = async () => {
+    if (aiStatus !== "valid") return;
     setStarting(true);
 
     try {
@@ -100,6 +127,58 @@ export default function SessionConfigPage() {
           <span className="text-gradient">Konfiguracja sesji</span>
         </h1>
         <p>{sessionData?.questionSet?.name}</p>
+      </div>
+
+      {/* AI Status Banner */}
+      <div
+        className={`ai-status-banner ${
+          aiStatus === "checking"
+            ? "ai-status-checking"
+            : aiStatus === "valid"
+              ? "ai-status-valid"
+              : "ai-status-invalid"
+        } animate-fade-in-up`}
+        style={{ marginBottom: "var(--space-xl)", opacity: 0 }}
+      >
+        <div className="ai-status-icon">
+          {aiStatus === "checking" && (
+            <span className="loading-spinner" style={{ width: 24, height: 24, borderWidth: 2 }} />
+          )}
+          {aiStatus === "valid" && "✅"}
+          {aiStatus === "invalid" && "❌"}
+        </div>
+        <div className="ai-status-content">
+          {aiStatus === "checking" && (
+            <>
+              <strong>Sprawdzanie połączenia z AI...</strong>
+              <p>Weryfikacja klucza API i modelu Gemini</p>
+            </>
+          )}
+          {aiStatus === "valid" && (
+            <>
+              <strong>AI gotowe do pracy</strong>
+              <p>Model: {aiModel} — połączenie działa poprawnie</p>
+            </>
+          )}
+          {aiStatus === "invalid" && (
+            <>
+              <strong>Brak połączenia z AI</strong>
+              <p>{aiError}</p>
+              <div style={{ display: "flex", gap: "var(--space-sm)", marginTop: "var(--space-md)" }}>
+                <Link href="/settings" className="btn btn-primary" style={{ fontSize: "0.85rem", padding: "0.5rem 1rem" }}>
+                  ⚙️ Przejdź do Ustawień
+                </Link>
+                <button
+                  onClick={validateAI}
+                  className="btn btn-secondary"
+                  style={{ fontSize: "0.85rem", padding: "0.5rem 1rem" }}
+                >
+                  🔄 Sprawdź ponownie
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="card-static animate-fade-in-up" style={{ marginBottom: "var(--space-xl)" }}>
@@ -162,13 +241,16 @@ export default function SessionConfigPage() {
       <button
         onClick={handleStart}
         className="btn btn-primary btn-lg btn-full"
-        disabled={starting}
+        disabled={starting || aiStatus !== "valid"}
+        title={aiStatus !== "valid" ? "Najpierw skonfiguruj połączenie z AI w Ustawieniach" : ""}
       >
         {starting ? (
           <>
             <span className="loading-spinner" style={{ width: 20, height: 20, borderWidth: 2 }} />
             Rozpoczynanie...
           </>
+        ) : aiStatus !== "valid" ? (
+          "🔒 Skonfiguruj AI, aby rozpocząć"
         ) : (
           "🚀 Rozpocznij naukę"
         )}

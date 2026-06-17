@@ -1678,3 +1678,65 @@ tbody tr:last-child td {
     align-items: flex-start;
   }
 }
+
+/* ========== AI STATUS BANNER ========== */
+
+.ai-status-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  transition: all var(--transition-normal);
+}
+
+.ai-status-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.ai-status-content {
+  flex: 1;
+}
+
+.ai-status-content strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.ai-status-content p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.ai-status-checking {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.ai-status-valid {
+  background: var(--success-bg);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.ai-status-valid strong {
+  color: var(--success);
+}
+
+.ai-status-invalid {
+  background: var(--error-bg);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.ai-status-invalid strong {
+  color: var(--error);
+}
