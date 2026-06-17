@@ -68,15 +68,15 @@ export default function StudyPage() {
     }
   }, [status, router, fetchSet]);
 
-  // Keyboard navigation for reels mode
+  // Keyboard + touch navigation for reels mode
   useEffect(() => {
     if (mode !== "reels" || !setData) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
         e.preventDefault();
         goNext();
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
         e.preventDefault();
         goPrev();
       } else if (e.key === " " || e.key === "Enter") {
@@ -85,8 +85,27 @@ export default function StudyPage() {
       }
     };
 
+    // Touch swipe support for mobile
+    let touchStartY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      const deltaY = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(deltaY) > 50) {
+        if (deltaY > 0) goNext();
+        else goPrev();
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchend", handleTouchEnd);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
   }, [mode, setData, currentIndex]);
 
   const filteredQuestions = useMemo(() => {
@@ -253,9 +272,9 @@ export default function StudyPage() {
           <div
             className={`reels-card ${
               slideDirection === "left"
-                ? "reels-slide-out-left"
+                ? "reels-slide-out-up"
                 : slideDirection === "right"
-                  ? "reels-slide-out-right"
+                  ? "reels-slide-out-down"
                   : "reels-slide-in"
             }`}
             key={currentIndex}
@@ -282,18 +301,18 @@ export default function StudyPage() {
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="reels-nav">
+        {/* Vertical navigation - right side */}
+        <div className="reels-side-nav">
           <button
             className="reels-nav-btn"
             onClick={goPrev}
             disabled={currentIndex === 0}
-            title="Poprzednie (←)"
+            title="Poprzednie (↑)"
           >
-            ◀
+            ▲
           </button>
 
-          <div className="reels-dots">
+          <div className="reels-side-dots">
             {setData.questions.map((_, i) => (
               <button
                 key={i}
@@ -313,15 +332,15 @@ export default function StudyPage() {
             className="reels-nav-btn"
             onClick={goNext}
             disabled={currentIndex === total - 1}
-            title="Następne (→)"
+            title="Następne (↓)"
           >
-            ▶
+            ▼
           </button>
         </div>
 
         {/* Keyboard hint */}
         <div className="reels-hint">
-          ← → nawigacja &nbsp;·&nbsp; Spacja – pokaż/ukryj odpowiedź
+          ↑ ↓ nawigacja &nbsp;·&nbsp; Spacja – pokaż/ukryj odpowiedź &nbsp;·&nbsp; Swipe na mobile
         </div>
       </div>
     );

@@ -1911,9 +1911,11 @@ tbody tr:last-child td {
   flex-direction: column;
   min-height: calc(100vh - 72px);
   padding: var(--space-lg);
-  max-width: 800px;
+  padding-right: 80px;
+  max-width: 900px;
   margin: 0 auto;
   position: relative;
+  overflow: hidden;
 }
 
 .reels-top-bar {
@@ -1964,6 +1966,7 @@ tbody tr:last-child td {
   align-items: center;
   justify-content: center;
   perspective: 1000px;
+  overflow: hidden;
 }
 
 .reels-card {
@@ -1973,50 +1976,50 @@ tbody tr:last-child td {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  padding: var(--space-2xl) var(--space-xl);
+  padding: var(--space-3xl) var(--space-2xl);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-xl);
-  min-height: 350px;
+  min-height: 400px;
   justify-content: center;
   box-shadow: var(--shadow-lg);
 }
 
 .reels-slide-in {
-  animation: reelsSlideIn 0.3s ease forwards;
+  animation: reelsSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-.reels-slide-out-left {
-  animation: reelsSlideOutLeft 0.2s ease forwards;
+.reels-slide-out-up {
+  animation: reelsSlideOutUp 0.25s ease forwards;
 }
 
-.reels-slide-out-right {
-  animation: reelsSlideOutRight 0.2s ease forwards;
+.reels-slide-out-down {
+  animation: reelsSlideOutDown 0.25s ease forwards;
 }
 
 @keyframes reelsSlideIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(10px);
+    transform: translateY(30px) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes reelsSlideOutLeft {
+@keyframes reelsSlideOutUp {
   to {
     opacity: 0;
-    transform: translateX(-40px) scale(0.97);
+    transform: translateY(-50px) scale(0.95);
   }
 }
 
-@keyframes reelsSlideOutRight {
+@keyframes reelsSlideOutDown {
   to {
     opacity: 0;
-    transform: translateX(40px) scale(0.97);
+    transform: translateY(50px) scale(0.95);
   }
 }
 
@@ -2026,18 +2029,18 @@ tbody tr:last-child td {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent-primary);
-  background: rgba(139, 92, 246, 0.1);
-  padding: 0.3rem 1rem;
+  background: rgba(139, 92, 246, 0.12);
+  padding: 0.35rem 1.2rem;
   border-radius: var(--radius-full);
 }
 
 .reels-question-text {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 500;
   line-height: 1.7;
   text-align: center;
   color: var(--text-primary);
-  max-width: 600px;
+  max-width: 620px;
 }
 
 .reels-reveal-btn {
@@ -2047,7 +2050,7 @@ tbody tr:last-child td {
 
 .reels-answer {
   width: 100%;
-  max-width: 600px;
+  max-width: 620px;
 }
 
 .reels-answer-label {
@@ -2072,34 +2075,53 @@ tbody tr:last-child td {
 }
 
 .reels-answer-text {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   line-height: 1.8;
-  font-size: 1rem;
-  padding: var(--space-lg);
+  font-size: 1.05rem;
+  padding: var(--space-lg) var(--space-xl);
   background: var(--bg-glass);
   border-radius: var(--radius-md);
   border-left: 3px solid var(--accent-primary);
 }
 
-.reels-nav {
+/* Side navigation (vertical) */
+.reels-side-nav {
+  position: fixed;
+  right: max(12px, calc((100vw - 900px) / 2 - 10px));
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-lg);
-  margin-top: var(--space-xl);
-  padding: var(--space-md) 0;
+  gap: var(--space-md);
+  z-index: 10;
+}
+
+.reels-side-dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: var(--space-sm) 0;
+  scrollbar-width: none;
+}
+
+.reels-side-dots::-webkit-scrollbar {
+  display: none;
 }
 
 .reels-nav-btn {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   background: var(--bg-glass);
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-primary);
   cursor: pointer;
   transition: all var(--transition-normal);
@@ -2110,22 +2132,13 @@ tbody tr:last-child td {
   background: var(--accent-gradient);
   color: white;
   border-color: transparent;
-  transform: scale(1.1);
+  transform: scale(1.15);
   box-shadow: var(--shadow-glow);
 }
 
 .reels-nav-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
-}
-
-.reels-dots {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: 400px;
 }
 
 .reels-dot {
@@ -2137,21 +2150,23 @@ tbody tr:last-child td {
   cursor: pointer;
   transition: all var(--transition-fast);
   padding: 0;
+  flex-shrink: 0;
 }
 
 .reels-dot.active {
-  width: 24px;
+  height: 22px;
   background: var(--accent-gradient);
   border-color: transparent;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
 }
 
 .reels-dot.visited {
-  background: rgba(139, 92, 246, 0.3);
-  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.35);
+  border-color: rgba(139, 92, 246, 0.35);
 }
 
 .reels-dot:hover {
-  transform: scale(1.3);
+  transform: scale(1.4);
   background: var(--accent-primary);
   border-color: transparent;
 }
@@ -2164,6 +2179,25 @@ tbody tr:last-child td {
   padding-bottom: var(--space-md);
 }
 
+/* Dark mode: explicit text visibility */
+[data-theme="dark"] .reels-question-text {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .reels-answer-text {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .reels-card {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .reels-nav-btn {
+  color: #f1f5f9;
+}
+
+/* Light mode */
 [data-theme="light"] .reels-card {
   box-shadow: var(--shadow-md);
 }
@@ -2173,17 +2207,40 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .reels-container {
+    padding-right: 50px;
+  }
+
   .reels-question-text {
     font-size: 1.1rem;
   }
 
   .reels-card {
     padding: var(--space-xl) var(--space-lg);
-    min-height: 280px;
+    min-height: 300px;
   }
 
-  .reels-dots {
-    max-width: 250px;
+  .reels-side-nav {
+    right: 6px;
+  }
+
+  .reels-nav-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+
+  .reels-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .reels-dot.active {
+    height: 16px;
+  }
+
+  .reels-side-dots {
+    max-height: 200px;
   }
 
   .reels-hint {
