@@ -39,6 +39,12 @@ export default function Navbar() {
         >
           Historia
         </Link>
+        <Link
+          href="/settings"
+          className={`navbar-link ${pathname === "/settings" ? "active" : ""}`}
+        >
+          ⚙️ Ustawienia
+        </Link>
       </div>
 
       <div className="navbar-user">

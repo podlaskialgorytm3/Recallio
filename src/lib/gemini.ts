@@ -1,7 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 interface GradeResult {
   score: number;
   feedback: string;
@@ -10,10 +8,17 @@ interface GradeResult {
 export async function gradeAnswer(
   question: string,
   correctAnswer: string,
-  userAnswer: string
+  userAnswer: string,
+  apiKey?: string,
+  modelName?: string
 ): Promise<GradeResult> {
+  const effectiveApiKey = apiKey || process.env.GEMINI_API_KEY || "";
+  const effectiveModel = modelName || "gemini-2.5-flash";
+
+  const genAI = new GoogleGenerativeAI(effectiveApiKey);
+
   const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: effectiveModel,
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: {

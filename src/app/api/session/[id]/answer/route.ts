@@ -49,11 +49,19 @@ export async function POST(
       );
     }
 
-    // Grade with AI
+    // Get user's Gemini settings
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { geminiApiKey: true, geminiModel: true },
+    });
+
+    // Grade with AI (uses user's API key/model if set, falls back to env defaults)
     const gradeResult = await gradeAnswer(
       question.question,
       question.answer,
-      userAnswer
+      userAnswer,
+      user?.geminiApiKey || undefined,
+      user?.geminiModel || undefined
     );
 
     // Save the answer
