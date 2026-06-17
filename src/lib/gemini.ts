@@ -12,10 +12,16 @@ export async function gradeAnswer(
   apiKey?: string,
   modelName?: string
 ): Promise<GradeResult> {
-  const effectiveApiKey = apiKey || process.env.GEMINI_API_KEY || "";
+  if (!apiKey) {
+    return {
+      score: 0,
+      feedback: "Brak klucza API Gemini. Ustaw swój klucz API w Ustawieniach (⚙️), aby korzystać z oceniania AI.",
+    };
+  }
+
   const effectiveModel = modelName || "gemini-2.5-flash";
 
-  const genAI = new GoogleGenerativeAI(effectiveApiKey);
+  const genAI = new GoogleGenerativeAI(apiKey);
 
   const model = genAI.getGenerativeModel({
     model: effectiveModel,

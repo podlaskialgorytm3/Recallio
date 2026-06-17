@@ -55,7 +55,7 @@ export async function POST(
       select: { geminiApiKey: true, geminiModel: true },
     });
 
-    // Grade with AI (uses user's API key/model if set, falls back to env defaults)
+    // Grade with AI (requires user's own API key from settings)
     const gradeResult = await gradeAnswer(
       question.question,
       question.answer,
