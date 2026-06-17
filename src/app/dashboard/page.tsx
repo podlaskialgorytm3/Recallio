@@ -8,6 +8,7 @@ import Link from "next/link";
 interface QuestionSet {
   id: string;
   name: string;
+  isPublic: boolean;
   createdAt: string;
   _count: {
     questions: number;
@@ -128,6 +129,21 @@ export default function DashboardPage() {
     }
   };
 
+  const handleToggleVisibility = async (setId: string, currentPublic: boolean) => {
+    try {
+      const res = await fetch(`/api/sets/${setId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublic: !currentPublic }),
+      });
+      if (res.ok) {
+        setSets(sets.map((s) => s.id === setId ? { ...s, isPublic: !currentPublic } : s));
+      }
+    } catch (error) {
+      console.error("Error toggling visibility:", error);
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="loading-container" style={{ minHeight: "80vh" }}>
@@ -175,8 +191,15 @@ export default function DashboardPage() {
                 className="card animate-fade-in-up"
                 style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <h3>{set.name}</h3>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "var(--space-sm)" }}>
+                  <h3 style={{ flex: 1 }}>{set.name}</h3>
+                  <button
+                    onClick={() => handleToggleVisibility(set.id, set.isPublic)}
+                    className={`btn visibility-toggle ${set.isPublic ? "visibility-public" : "visibility-private"}`}
+                    title={set.isPublic ? "Zmień na prywatny" : "Zmień na publiczny"}
+                  >
+                    {set.isPublic ? "🌍 Publiczny" : "🔒 Prywatny"}
+                  </button>
                   <button
                     onClick={() => handleDeleteSet(set.id)}
                     className="btn btn-danger"

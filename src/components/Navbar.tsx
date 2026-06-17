@@ -34,6 +34,12 @@ export default function Navbar() {
           Wgraj zestaw
         </Link>
         <Link
+          href="/explore"
+          className={`navbar-link ${pathname === "/explore" ? "active" : ""}`}
+        >
+          🌍 Przeglądaj
+        </Link>
+        <Link
           href="/history"
           className={`navbar-link ${pathname === "/history" ? "active" : ""}`}
         >

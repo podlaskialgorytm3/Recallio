@@ -1803,3 +1803,60 @@ tbody tr:last-child td {
     text-align: center;
   }
 }
+
+/* ========== VISIBILITY TOGGLE ========== */
+
+.visibility-toggle {
+  padding: 0.3rem 0.75rem !important;
+  font-size: 0.78rem !important;
+  border-radius: var(--radius-full) !important;
+  white-space: nowrap;
+  transition: all var(--transition-normal) !important;
+}
+
+.visibility-public {
+  background: var(--success-bg) !important;
+  color: var(--success) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+.visibility-public:hover {
+  background: rgba(16, 185, 129, 0.2) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+.visibility-private {
+  background: var(--bg-glass) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.visibility-private:hover {
+  background: var(--bg-glass-hover) !important;
+  border-color: var(--border-hover) !important;
+}
+
+/* ========== EXPLORE PAGE ========== */
+
+.explore-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.explore-author-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: white;
+  flex-shrink: 0;
+}

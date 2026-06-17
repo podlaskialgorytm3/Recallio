@@ -13,7 +13,13 @@ export async function POST(req: Request) {
     const { questionSetId } = await req.json();
 
     const questionSet = await prisma.questionSet.findFirst({
-      where: { id: questionSetId, userId: session.user.id },
+      where: {
+        id: questionSetId,
+        OR: [
+          { userId: session.user.id },
+          { isPublic: true },
+        ],
+      },
     });
 
     if (!questionSet) {
