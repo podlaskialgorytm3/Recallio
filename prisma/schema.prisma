@@ -11,6 +11,8 @@ model User {
   id           String        @id @default(cuid())
   email        String        @unique
   name         String?
+  firstName    String?
+  lastName     String?
   passwordHash String
   geminiApiKey String?
   geminiModel  String        @default("gemini-2.5-flash")

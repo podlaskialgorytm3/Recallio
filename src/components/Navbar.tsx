@@ -49,10 +49,16 @@ export default function Navbar() {
 
       <div className="navbar-user">
         <ThemeToggle />
-        <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-          {session.user?.email}
-        </span>
-        <div className="navbar-avatar">{initial}</div>
+        <Link
+          href="/profile"
+          className="navbar-profile-link"
+          title="Edytuj profil"
+        >
+          <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+            {session.user?.name || session.user?.email}
+          </span>
+          <div className="navbar-avatar">{initial}</div>
+        </Link>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="btn btn-secondary"

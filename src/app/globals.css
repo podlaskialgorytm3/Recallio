@@ -465,6 +465,26 @@ h3 {
   justify-content: center;
   font-weight: 600;
   font-size: 0.85rem;
+  color: white;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.navbar-profile-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.navbar-profile-link:hover {
+  background: var(--bg-glass-hover);
+}
+
+.navbar-profile-link:hover .navbar-avatar {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-glow);
 }
 
 /* ========== PROGRESS BAR ========== */
@@ -1739,4 +1759,47 @@ tbody tr:last-child td {
 
 .ai-status-invalid strong {
   color: var(--error);
+}
+
+/* ========== PROFILE PAGE ========== */
+
+.profile-hero-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-glow);
+}
+
+.profile-hero-info h2 {
+  margin-bottom: 2px;
+}
+
+.profile-joined {
+  margin-top: var(--space-sm);
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+@media (max-width: 480px) {
+  .profile-hero-inner {
+    flex-direction: column;
+    text-align: center;
+  }
 }
