@@ -189,7 +189,7 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : (
-        <div className="session-grid">
+        <div className="set-grid">
           {sets.map((set, index) => {
             const activeSession = activeSessions.find(
               (s) => s.questionSetId === set.id
@@ -198,78 +198,104 @@ export default function DashboardPage() {
             return (
               <div
                 key={set.id}
-                className="card animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.05}s`, opacity: 0 }}
+                className="set-card"
+                style={{ animationDelay: `${index * 0.07}s` }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "var(--space-sm)" }}>
-                  <h3 style={{ flex: 1 }}>{set.name}</h3>
-                  <button
-                    onClick={() => handleToggleVisibility(set.id, set.isPublic)}
-                    className={`btn visibility-toggle ${set.isPublic ? "visibility-public" : "visibility-private"}`}
-                    title={set.isPublic ? "Zmień na prywatny" : "Zmień na publiczny"}
-                  >
-                    {set.isPublic ? "🌍 Publiczny" : "🔒 Prywatny"}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteSet(set.id)}
-                    className="btn btn-danger"
-                    style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem" }}
-                    title="Usuń zestaw"
-                  >
-                    🗑️
-                  </button>
-                </div>
-                <div className="session-card-meta">
-                  <span>📝 {set._count.questions} pytań</span>
-                  <span className="dot" />
-                  <span>
-                    📅{" "}
-                    {new Date(set.createdAt).toLocaleDateString("pl-PL", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div style={{ marginTop: "var(--space-lg)", display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
-                  {activeSession ? (
+                {/* Gradient border glow (visible on hover) */}
+                <div className="set-card-glow" />
+
+                {/* Card content */}
+                <div className="set-card-inner">
+                  {/* Header: title + actions */}
+                  <div className="set-card-header">
+                    <h3 className="set-card-title">{set.name}</h3>
+                    <div className="set-card-header-actions">
+                      <button
+                        onClick={() => handleToggleVisibility(set.id, set.isPublic)}
+                        className={`set-badge ${set.isPublic ? "set-badge-public" : "set-badge-private"}`}
+                        title={set.isPublic ? "Zmień na prywatny" : "Zmień na publiczny"}
+                      >
+                        <span className="set-badge-icon">{set.isPublic ? "🌍" : "🔒"}</span>
+                        {set.isPublic ? "Publiczny" : "Prywatny"}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSet(set.id)}
+                        className="set-delete-btn"
+                        title="Usuń zestaw"
+                      >
+                        <span className="set-delete-icon">🗑️</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Meta row */}
+                  <div className="set-card-meta">
+                    <div className="set-meta-item">
+                      <span className="set-meta-icon">📝</span>
+                      <span>{set._count.questions} pytań</span>
+                    </div>
+                    <div className="set-meta-divider" />
+                    <div className="set-meta-item">
+                      <span className="set-meta-icon">📅</span>
+                      <span>
+                        {new Date(set.createdAt).toLocaleDateString("pl-PL", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="set-card-actions">
+                    {activeSession ? (
+                      <button
+                        onClick={() => handleResumeSession(activeSession.id)}
+                        className="set-action-btn set-action-resume"
+                        disabled={resumingId === activeSession.id}
+                        style={{ animationDelay: `${index * 0.07 + 0.1}s` }}
+                      >
+                        <span className="set-action-icon">▶️</span>
+                        <span className="set-action-label">
+                          {resumingId === activeSession.id ? (
+                            <>
+                              <span className="loading-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
+                              Wznawianie
+                            </>
+                          ) : (
+                            "Kontynuuj"
+                          )}
+                        </span>
+                      </button>
+                    ) : null}
                     <button
-                      onClick={() => handleResumeSession(activeSession.id)}
-                      className="btn btn-success"
-                      style={{ flex: 1 }}
-                      disabled={resumingId === activeSession.id}
+                      onClick={() => handleStartSession(set.id)}
+                      className="set-action-btn set-action-primary"
+                      style={{ animationDelay: `${index * 0.07 + 0.15}s` }}
                     >
-                      {resumingId === activeSession.id ? (
-                        <>
-                          <span className="loading-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
-                          Wznawianie...
-                        </>
-                      ) : (
-                        "▶️ Kontynuuj sesję"
-                      )}
+                      <span className="set-action-icon set-action-icon-rocket">🚀</span>
+                      <span className="set-action-label">
+                        {activeSession ? "Nowa sesja" : "Rozpocznij"}
+                      </span>
                     </button>
-                  ) : null}
-                  <button
-                    onClick={() => handleStartSession(set.id)}
-                    className="btn btn-primary"
-                    style={{ flex: 1 }}
-                  >
-                    🚀 {activeSession ? "Nowa sesja" : "Rozpocznij sesję"}
-                  </button>
-                  <Link
-                    href={`/study/${set.id}`}
-                    className="btn btn-secondary"
-                    style={{ flex: 1, textAlign: "center" }}
-                  >
-                    📖 Tryb nauki
-                  </Link>
-                  <Link
-                    href={`/sets/${set.id}/edit`}
-                    className="btn btn-secondary"
-                    style={{ flex: 1, textAlign: "center" }}
-                  >
-                    ✏️ Edytuj
-                  </Link>
+                    <Link
+                      href={`/study/${set.id}`}
+                      className="set-action-btn set-action-secondary"
+                      style={{ animationDelay: `${index * 0.07 + 0.2}s` }}
+                    >
+                      <span className="set-action-icon">📖</span>
+                      <span className="set-action-label">Nauka</span>
+                    </Link>
+                    <Link
+                      href={`/sets/${set.id}/edit`}
+                      className="set-action-btn set-action-secondary"
+                      style={{ animationDelay: `${index * 0.07 + 0.25}s` }}
+                    >
+                      <span className="set-action-icon">✏️</span>
+                      <span className="set-action-label">Edytuj</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
