@@ -263,6 +263,13 @@ export default function DashboardPage() {
                   >
                     📖 Tryb nauki
                   </Link>
+                  <Link
+                    href={`/sets/${set.id}/edit`}
+                    className="btn btn-secondary"
+                    style={{ flex: 1, textAlign: "center" }}
+                  >
+                    ✏️ Edytuj
+                  </Link>
                 </div>
               </div>
             );

@@ -2420,3 +2420,25 @@ tbody tr:last-child td {
     gap: var(--space-sm);
   }
 }
+
+/* ========== EDIT SET INDICATORS ========== */
+
+.manual-create-card-new {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.03) 0%, var(--bg-card) 100%);
+}
+
+.manual-create-card-modified {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.03) 0%, var(--bg-card) 100%);
+}
+
+.edit-success-msg {
+  padding: var(--space-md) var(--space-lg);
+  background: var(--success-bg);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-md);
+  color: var(--success);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
