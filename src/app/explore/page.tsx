@@ -2,8 +2,12 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
+
+/* ================================================================
+   TYPES
+   ================================================================ */
 
 interface PublicSet {
   id: string;
@@ -20,6 +24,146 @@ interface PublicSet {
   };
 }
 
+/* ================================================================
+   TILT HOOK — lightweight 3D perspective follow on mouse
+   ================================================================ */
+
+function useTilt(maxDeg = 5) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const rotateX = (0.5 - y) * maxDeg * 2;
+      const rotateY = (x - 0.5) * maxDeg * 2;
+      el.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px) scale(1.01)`;
+    },
+    [maxDeg]
+  );
+
+  const handleLeave = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.transform = "";
+  }, []);
+
+  return { ref, handleMove, handleLeave };
+}
+
+/* ================================================================
+   EXPLORE CARD SUB-COMPONENT
+   ================================================================ */
+
+function ExploreCard({
+  set,
+  index,
+  isOwn,
+  authorName,
+  startingSession,
+  onStartSession,
+}: {
+  set: PublicSet;
+  index: number;
+  isOwn: boolean;
+  authorName: string;
+  startingSession: string | null;
+  onStartSession: (id: string) => void;
+}) {
+  const { ref, handleMove, handleLeave } = useTilt(4);
+
+  return (
+    <div
+      ref={ref}
+      className="explore-card"
+      style={{ animationDelay: `${index * 0.08}s` }}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+    >
+      <div className="explore-card-glow" />
+      <div className="explore-card-inner">
+        {/* Header */}
+        <div className="explore-card-header">
+          <h3 className="explore-card-title">{set.name}</h3>
+          {isOwn && (
+            <span className="explore-own-badge">
+              <span className="explore-own-badge-shimmer" />
+              Twój zestaw
+            </span>
+          )}
+        </div>
+
+        {/* Author */}
+        <div className="explore-author-row">
+          <div className="explore-avatar">
+            {authorName.charAt(0).toUpperCase()}
+          </div>
+          <span className="explore-author-name">{authorName}</span>
+        </div>
+
+        {/* Meta */}
+        <div className="explore-card-meta">
+          <div className="explore-meta-item">
+            <span className="explore-meta-icon">📝</span>
+            <span>{set._count.questions} pytań</span>
+          </div>
+          <div className="explore-meta-divider" />
+          <div className="explore-meta-item">
+            <span className="explore-meta-icon">📅</span>
+            <span>
+              {new Date(set.createdAt).toLocaleDateString("pl-PL", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="explore-card-actions">
+          <Link
+            href={`/study/${set.id}`}
+            className="explore-action-btn explore-action-secondary"
+          >
+            <span className="explore-action-icon">📖</span>
+            <span className="explore-action-label">Tryb nauki</span>
+          </Link>
+          <button
+            onClick={() => onStartSession(set.id)}
+            className="explore-action-btn explore-action-primary"
+            disabled={startingSession === set.id}
+          >
+            {startingSession === set.id ? (
+              <>
+                <span
+                  className="loading-spinner"
+                  style={{ width: 16, height: 16, borderWidth: 2 }}
+                />
+                <span className="explore-action-label">...</span>
+              </>
+            ) : (
+              <>
+                <span className="explore-action-icon explore-action-icon-rocket">
+                  🚀
+                </span>
+                <span className="explore-action-label">Rozpocznij sesję</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================
+   MAIN PAGE
+   ================================================================ */
+
 export default function ExplorePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -27,6 +171,7 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [startingSession, setStartingSession] = useState<string | null>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -91,168 +236,102 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="page-container">
-      <div className="page-header animate-fade-in-up" style={{ opacity: 0 }}>
-        <h1>
-          <span className="text-gradient">🌍 Przeglądaj zestawy</span>
-        </h1>
-        <p>Odkrywaj publiczne zestawy pytań udostępnione przez społeczność</p>
+    <div className="explore-page">
+      {/* Animated background blobs */}
+      <div className="explore-bg" aria-hidden="true">
+        <div className="explore-blob explore-blob-1" />
+        <div className="explore-blob explore-blob-2" />
+        <div className="explore-blob explore-blob-3" />
       </div>
 
-      {/* Search */}
-      <div
-        className="card-static animate-fade-in-up"
-        style={{ opacity: 0, animationDelay: "0.1s", marginBottom: "var(--space-xl)" }}
-      >
-        <div style={{ position: "relative" }}>
-          <input
-            type="text"
-            className="input"
-            placeholder="Szukaj po nazwie zestawu lub autorze..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: "2.5rem", width: "100%" }}
-          />
-          <span
-            style={{
-              position: "absolute",
-              left: "0.75rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              fontSize: "1.1rem",
-              opacity: 0.5,
-            }}
-          >
-            🔍
-          </span>
-        </div>
-        {searchQuery && (
-          <p
-            style={{
-              marginTop: "var(--space-md)",
-              fontSize: "0.85rem",
-              color: "var(--text-tertiary)",
-            }}
-          >
-            Znaleziono {filteredSets.length} z {sets.length} zestawów
+      <div className="page-container" style={{ position: "relative", zIndex: 1 }}>
+        {/* Header */}
+        <div className="explore-header">
+          <div className="explore-header-dot" />
+          <h1 className="explore-heading">
+            <span className="text-gradient">Przeglądaj zestawy</span>
+          </h1>
+          <p className="explore-subtitle">
+            Odkrywaj publiczne zestawy pytań udostępnione przez społeczność
           </p>
-        )}
-      </div>
+        </div>
 
-      {/* Sets Grid */}
-      {filteredSets.length === 0 ? (
-        <div className="card-static">
-          <div className="empty-state">
-            <div className="empty-state-icon">
-              {searchQuery ? "🔍" : "📭"}
-            </div>
-            <h3>
-              {searchQuery
-                ? "Brak wyników"
-                : "Brak publicznych zestawów"}
-            </h3>
-            <p>
-              {searchQuery
-                ? `Nie znaleziono zestawów pasujących do "${searchQuery}"`
-                : "Nikt jeszcze nie udostępnił swoich zestawów. Bądź pierwszy!"}
-            </p>
-            {!searchQuery && (
-              <Link href="/dashboard" className="btn btn-primary btn-lg">
-                Udostępnij swój zestaw
-              </Link>
+        {/* Search */}
+        <div className={`explore-search ${searchFocused ? "explore-search-focused" : ""}`}>
+          <div className="explore-search-inner">
+            <span className={`explore-search-icon ${searchFocused || searchQuery ? "explore-search-icon-active" : ""}`}>
+              🔍
+            </span>
+            <input
+              type="text"
+              className="explore-search-input"
+              placeholder="Szukaj po nazwie zestawu lub autorze..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+            />
+            {searchQuery && (
+              <button
+                className="explore-search-clear"
+                onClick={() => setSearchQuery("")}
+                title="Wyczyść"
+              >
+                ✕
+              </button>
             )}
           </div>
+          {searchQuery && (
+            <p className="explore-search-count">
+              Znaleziono <strong>{filteredSets.length}</strong> z{" "}
+              <strong>{sets.length}</strong> zestawów
+            </p>
+          )}
         </div>
-      ) : (
-        <div className="session-grid">
-          {filteredSets.map((set, index) => {
-            const authorName = getAuthorName(set.user);
-            const isOwn = set.userId === session?.user?.id;
 
-            return (
-              <div
-                key={set.id}
-                className="card animate-fade-in-up"
-                style={{
-                  animationDelay: `${index * 0.05}s`,
-                  opacity: 0,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: "var(--space-sm)",
-                  }}
-                >
-                  <h3 style={{ flex: 1, marginRight: "var(--space-sm)" }}>
-                    {set.name}
-                  </h3>
-                  {isOwn && (
-                    <span className="badge badge-info">Twój zestaw</span>
-                  )}
-                </div>
-
-                <div className="explore-author">
-                  <div className="explore-author-avatar">
-                    {authorName.charAt(0).toUpperCase()}
-                  </div>
-                  <span>{authorName}</span>
-                </div>
-
-                <div className="session-card-meta">
-                  <span>📝 {set._count.questions} pytań</span>
-                  <span className="dot" />
-                  <span>
-                    📅{" "}
-                    {new Date(set.createdAt).toLocaleDateString("pl-PL", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "var(--space-lg)",
-                    display: "flex",
-                    gap: "var(--space-sm)",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <Link
-                    href={`/study/${set.id}`}
-                    className="btn btn-secondary"
-                    style={{ flex: 1, textAlign: "center" }}
-                  >
-                    📖 Tryb nauki
-                  </Link>
-                  <button
-                    onClick={() => handleStartSession(set.id)}
-                    className="btn btn-primary"
-                    style={{ flex: 1 }}
-                    disabled={startingSession === set.id}
-                  >
-                    {startingSession === set.id ? (
-                      <>
-                        <span
-                          className="loading-spinner"
-                          style={{ width: 16, height: 16, borderWidth: 2 }}
-                        />
-                        ...
-                      </>
-                    ) : (
-                      "🚀 Rozpocznij sesję"
-                    )}
-                  </button>
-                </div>
+        {/* Grid */}
+        {filteredSets.length === 0 ? (
+          <div className="card-static">
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                {searchQuery ? "🔍" : "📭"}
               </div>
-            );
-          })}
-        </div>
-      )}
+              <h3>
+                {searchQuery ? "Brak wyników" : "Brak publicznych zestawów"}
+              </h3>
+              <p>
+                {searchQuery
+                  ? `Nie znaleziono zestawów pasujących do "${searchQuery}"`
+                  : "Nikt jeszcze nie udostępnił swoich zestawów. Bądź pierwszy!"}
+              </p>
+              {!searchQuery && (
+                <Link href="/dashboard" className="btn btn-primary btn-lg">
+                  Udostępnij swój zestaw
+                </Link>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="explore-grid">
+            {filteredSets.map((set, index) => {
+              const authorName = getAuthorName(set.user);
+              const isOwn = set.userId === session?.user?.id;
+
+              return (
+                <ExploreCard
+                  key={set.id}
+                  set={set}
+                  index={index}
+                  isOwn={isOwn}
+                  authorName={authorName}
+                  startingSession={startingSession}
+                  onStartSession={handleStartSession}
+                />
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

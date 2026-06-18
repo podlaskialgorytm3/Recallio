@@ -2857,3 +2857,613 @@ tbody tr:last-child td {
   font-weight: 500;
   font-size: 0.95rem;
 }
+
+/* ==========================================================================
+   PREMIUM EXPLORE PAGE
+   ========================================================================== */
+
+/* ---- Page wrapper ---- */
+.explore-page {
+  position: relative;
+  min-height: calc(100vh - 72px);
+  overflow: hidden;
+}
+
+/* ---- Animated background blobs ---- */
+.explore-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.explore-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+  will-change: transform;
+}
+
+.explore-blob-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 70%);
+  top: -10%;
+  left: -5%;
+  animation: blobDrift1 20s ease-in-out infinite;
+}
+
+.explore-blob-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, transparent 70%);
+  top: 40%;
+  right: -10%;
+  animation: blobDrift2 25s ease-in-out infinite;
+}
+
+.explore-blob-3 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 70%);
+  bottom: -5%;
+  left: 30%;
+  animation: blobDrift3 18s ease-in-out infinite;
+}
+
+@keyframes blobDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, 30px) scale(1.05); }
+  66% { transform: translate(-20px, -15px) scale(0.95); }
+}
+
+@keyframes blobDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-35px, 25px) scale(0.97); }
+  66% { transform: translate(25px, -30px) scale(1.04); }
+}
+
+@keyframes blobDrift3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.03); }
+  66% { transform: translate(-15px, 25px) scale(0.96); }
+}
+
+[data-theme="light"] .explore-blob {
+  opacity: 0.07;
+}
+
+/* ---- Header entrance ---- */
+.explore-header {
+  text-align: center;
+  margin-bottom: var(--space-2xl);
+  padding-top: var(--space-lg);
+}
+
+.explore-header-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  margin: 0 auto var(--space-lg);
+  opacity: 0;
+  animation: headerDotEnter 0.6s ease-out 0.1s forwards;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  position: relative;
+}
+
+.explore-header-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  opacity: 0;
+  animation: dotGlow 3s ease-in-out 1s infinite;
+}
+
+@keyframes headerDotEnter {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes dotGlow {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(2.5); }
+}
+
+.explore-heading {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-sm);
+  opacity: 0;
+  animation: headerSlideUp 0.6s ease-out 0.18s forwards;
+}
+
+.explore-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  opacity: 0;
+  animation: headerSlideUp 0.6s ease-out 0.26s forwards;
+}
+
+@keyframes headerSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Premium search bar ---- */
+.explore-search {
+  max-width: 680px;
+  margin: 0 auto var(--space-2xl);
+  opacity: 0;
+  animation: headerSlideUp 0.6s ease-out 0.34s forwards;
+}
+
+.explore-search-inner {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 0.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 300ms ease-out;
+  display: flex;
+  align-items: center;
+}
+
+.explore-search-focused .explore-search-inner {
+  border-color: var(--accent-primary);
+  box-shadow:
+    0 0 0 3px rgba(139, 92, 246, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 0 40px rgba(139, 92, 246, 0.05);
+  transform: translateY(-1px);
+}
+
+.explore-search-icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
+  opacity: 0.4;
+  z-index: 1;
+}
+
+.explore-search-icon-active {
+  opacity: 0.7;
+  animation: searchIconPulse 0.4s ease-out;
+}
+
+@keyframes searchIconPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.explore-search-input {
+  width: 100%;
+  padding: 0.9rem 2.5rem 0.9rem 2.8rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: var(--font-family);
+  outline: none;
+}
+
+.explore-search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.explore-search-clear {
+  position: absolute;
+  right: 0.75rem;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 200ms ease-out;
+}
+
+.explore-search-clear:hover {
+  background: var(--bg-glass-hover);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.explore-search-count {
+  text-align: center;
+  margin-top: var(--space-sm);
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+}
+
+.explore-search-count strong {
+  color: var(--text-secondary);
+}
+
+/* ---- Card grid ---- */
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-xl);
+}
+
+/* ---- Explore card ---- */
+.explore-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  opacity: 0;
+  animation: exploreCardEnter 0.55s ease-out forwards;
+  transition: box-shadow 300ms ease-out;
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+@keyframes exploreCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Gradient glow border on hover */
+.explore-card-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.45) 0%,
+    rgba(59, 130, 246, 0.35) 40%,
+    rgba(139, 92, 246, 0.45) 100%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.explore-card:hover .explore-card-glow {
+  opacity: 1;
+}
+
+/* Inner card body */
+.explore-card-inner {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  transition: border-color 300ms ease-out, box-shadow 300ms ease-out, background 300ms ease-out;
+  overflow: hidden;
+}
+
+.explore-card:hover .explore-card-inner {
+  border-color: transparent;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 16px 48px rgba(0, 0, 0, 0.06),
+    0 0 40px rgba(139, 92, 246, 0.05);
+  background: var(--bg-card-hover);
+}
+
+/* Subtle internal radial light */
+.explore-card-inner::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -20%;
+  width: 50%;
+  height: 70%;
+  background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---- Card header ---- */
+.explore-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  position: relative;
+  z-index: 1;
+  margin-bottom: var(--space-md);
+}
+
+.explore-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  flex: 1;
+  letter-spacing: -0.01em;
+}
+
+/* ---- "Twój zestaw" badge with shimmer ---- */
+.explore-own-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--radius-full);
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--info);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.explore-own-badge-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  animation: badgeShimmer 2.5s ease-in-out 0.8s 1;
+}
+
+@keyframes badgeShimmer {
+  from { left: -100%; }
+  to { left: 100%; }
+}
+
+/* ---- Author row ---- */
+.explore-author-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  position: relative;
+  z-index: 1;
+}
+
+.explore-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(139, 92, 246, 0.2);
+}
+
+.explore-author-name {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ---- Card meta ---- */
+.explore-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--border);
+  margin-bottom: var(--space-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.explore-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.explore-meta-icon {
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.explore-meta-divider {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+/* ---- Action buttons ---- */
+.explore-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.explore-action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 200ms ease-out;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.explore-action-icon {
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 200ms ease-out;
+}
+
+.explore-action-label {
+  transition: color 200ms ease-out;
+}
+
+/* Primary CTA */
+.explore-action-primary {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #3b82f6 100%);
+  background-size: 200% 200%;
+  color: white;
+  box-shadow:
+    0 2px 8px rgba(139, 92, 246, 0.3),
+    0 0 16px rgba(139, 92, 246, 0.08);
+  animation: gradientShift 4s ease infinite;
+}
+
+.explore-action-primary:hover {
+  box-shadow:
+    0 4px 16px rgba(139, 92, 246, 0.45),
+    0 0 30px rgba(139, 92, 246, 0.12);
+  transform: translateY(-1px);
+}
+
+.explore-action-primary:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.explore-action-primary .explore-action-label {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.explore-action-primary:hover .explore-action-label {
+  color: #fff;
+}
+
+/* Rocket bounce on hover */
+.explore-action-icon-rocket {
+  transition: transform 250ms ease-out;
+}
+
+.explore-action-primary:hover .explore-action-icon-rocket {
+  animation: rocketBounce 0.5s ease-out;
+}
+
+/* Secondary button */
+.explore-action-secondary {
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.explore-action-secondary:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+.explore-action-secondary:hover .explore-action-icon {
+  transform: translateY(-1px);
+}
+
+.explore-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .explore-blob {
+    animation: none !important;
+  }
+
+  .explore-card {
+    animation-duration: 0.01ms !important;
+    opacity: 1;
+  }
+
+  .explore-card:hover {
+    transform: none !important;
+  }
+
+  .explore-header-dot,
+  .explore-heading,
+  .explore-subtitle,
+  .explore-search {
+    animation-duration: 0.01ms !important;
+    opacity: 1;
+  }
+
+  .explore-header-dot::after {
+    animation: none !important;
+  }
+
+  .set-action-primary,
+  .explore-action-primary {
+    animation: none !important;
+  }
+
+  .explore-own-badge-shimmer {
+    animation: none !important;
+  }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .explore-heading {
+    font-size: 1.8rem;
+  }
+
+  .explore-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .explore-blob-1 { width: 350px; height: 350px; }
+  .explore-blob-2 { width: 300px; height: 300px; }
+  .explore-blob-3 { width: 250px; height: 250px; }
+}
+
+@media (max-width: 480px) {
+  .explore-card-actions {
+    flex-direction: column;
+  }
+
+  .explore-card-header {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .explore-own-badge {
+    align-self: flex-start;
+  }
+}
