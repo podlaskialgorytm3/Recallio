@@ -1590,6 +1590,24 @@ h3 {
   font-size: 1.1rem;
 }
 
+/* ========== FULLSCREEN ========== */
+
+.fullscreen-active {
+  background: var(--bg-main) !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: var(--space-xl) !important;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+[data-theme="light"] .fullscreen-active {
+  background: var(--bg-main) !important;
+}
+
 /* ========== TABLE ========== */
 
 .table-container {

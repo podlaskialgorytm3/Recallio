@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 
 interface Question {
@@ -43,12 +43,19 @@ export default function StudyPage() {
 
   // Fullscreen state
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((err) => {
-        console.error(`Error attempting to enable fullscreen: ${err.message}`);
-      });
+      if (containerRef.current) {
+        containerRef.current.requestFullscreen().catch((err) => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      }
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
@@ -266,7 +273,7 @@ export default function StudyPage() {
     const progress = ((currentIndex + 1) / total) * 100;
 
     return (
-      <div className="reels-container">
+      <div className={`reels-container ${isFullscreen ? "fullscreen-active" : ""}`} ref={containerRef}>
         {/* Top bar */}
         <div className="reels-top-bar">
           <div style={{ display: "flex", gap: "var(--space-sm)" }}>
@@ -381,7 +388,7 @@ export default function StudyPage() {
 
   // ==================== LIST MODE ====================
   return (
-    <div className="page-container" style={{ maxWidth: 900 }}>
+    <div className={`page-container ${isFullscreen ? "fullscreen-active" : ""}`} style={{ maxWidth: 900 }} ref={containerRef}>
       <div className="page-header">
         <div
           style={{
