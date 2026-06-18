@@ -41,6 +41,29 @@ export default function StudyPage() {
   const [answerRevealed, setAnswerRevealed] = useState(false);
   const [slideDirection, setSlideDirection] = useState<"none" | "left" | "right">("none");
 
+  // Fullscreen state
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
   const fetchSet = useCallback(async () => {
     try {
       const res = await fetch(`/api/sets/${setId}`);
@@ -246,13 +269,23 @@ export default function StudyPage() {
       <div className="reels-container">
         {/* Top bar */}
         <div className="reels-top-bar">
-          <button
-            onClick={() => setMode("choose")}
-            className="btn btn-secondary"
-            style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
-          >
-            &larr; Powrót
-          </button>
+          <div style={{ display: "flex", gap: "var(--space-sm)" }}>
+            <button
+              onClick={() => setMode("choose")}
+              className="btn btn-secondary"
+              style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
+            >
+              &larr; Powrót
+            </button>
+            <button
+              onClick={toggleFullscreen}
+              className="btn btn-secondary"
+              style={{ padding: "0.4rem 0.6rem", fontSize: "0.85rem" }}
+              title={isFullscreen ? "Zamknij pełny ekran" : "Pełny ekran"}
+            >
+              {isFullscreen ? "🗗" : "⛶"}
+            </button>
+          </div>
           <span className="reels-title">{setData.name}</span>
           <span className="reels-counter">
             {currentIndex + 1} / {total}
@@ -364,6 +397,14 @@ export default function StudyPage() {
             style={{ padding: "0.4rem 0.8rem" }}
           >
             &larr; Zmień tryb
+          </button>
+          <button
+            onClick={toggleFullscreen}
+            className="btn btn-secondary"
+            style={{ padding: "0.4rem 0.8rem" }}
+            title={isFullscreen ? "Zamknij pełny ekran" : "Pełny ekran"}
+          >
+            {isFullscreen ? "🗗 Wyjdź" : "⛶ Pełny ekran"}
           </button>
           <span className="badge badge-info">Tryb nauki – lista</span>
         </div>
