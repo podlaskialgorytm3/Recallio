@@ -34,6 +34,12 @@ export default function Navbar() {
           Wgraj zestaw
         </Link>
         <Link
+          href="/sets/create"
+          className={`navbar-link ${pathname === "/sets/create" ? "active" : ""}`}
+        >
+          ✏️ Utwórz zestaw
+        </Link>
+        <Link
           href="/explore"
           className={`navbar-link ${pathname === "/explore" ? "active" : ""}`}
         >

@@ -162,9 +162,14 @@ export default function DashboardPage() {
           </h1>
           <p>Wybierz zestaw pytań lub wgraj nowy, aby rozpocząć naukę.</p>
         </div>
-        <Link href="/sets/upload" className="btn btn-primary btn-lg">
-          ➕ Wgraj nowy zestaw
-        </Link>
+        <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
+          <Link href="/sets/create" className="btn btn-primary btn-lg">
+            ✏️ Utwórz ręcznie
+          </Link>
+          <Link href="/sets/upload" className="btn btn-secondary btn-lg">
+            📁 Wgraj JSON
+          </Link>
+        </div>
       </div>
 
       {sets.length === 0 ? (
@@ -172,10 +177,15 @@ export default function DashboardPage() {
           <div className="empty-state">
             <div className="empty-state-icon">📚</div>
             <h3>Brak zestawów pytań</h3>
-            <p>Wgraj swój pierwszy plik JSON z pytaniami, aby rozpocząć naukę!</p>
-            <Link href="/sets/upload" className="btn btn-primary btn-lg">
-              Wgraj plik JSON
-            </Link>
+            <p>Utwórz swój pierwszy zestaw pytań ręcznie lub wgraj plik JSON, aby rozpocząć naukę!</p>
+            <div style={{ display: "flex", gap: "var(--space-sm)", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link href="/sets/create" className="btn btn-primary btn-lg">
+                ✏️ Utwórz ręcznie
+              </Link>
+              <Link href="/sets/upload" className="btn btn-secondary btn-lg">
+                📁 Wgraj JSON
+              </Link>
+            </div>
           </div>
         </div>
       ) : (
