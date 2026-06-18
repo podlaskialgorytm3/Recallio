@@ -275,37 +275,59 @@ export default function StudyPage() {
     return (
       <div className={`reels-container ${isFullscreen ? "fullscreen-active" : ""}`} ref={containerRef}>
         {/* Top bar */}
-        <div className="reels-top-bar">
-          <div style={{ display: "flex", gap: "var(--space-sm)" }}>
-            <button
-              onClick={() => setMode("choose")}
-              className="btn btn-secondary"
-              style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
-            >
-              &larr; Powrót
-            </button>
-            <button
-              onClick={toggleFullscreen}
-              className="btn btn-secondary"
-              style={{ padding: "0.4rem 0.6rem", fontSize: "0.85rem" }}
-              title={isFullscreen ? "Zamknij pełny ekran" : "Pełny ekran"}
-            >
-              {isFullscreen ? "🗗" : "⛶"}
-            </button>
+        {!isFullscreen && (
+          <div className="reels-top-bar">
+            <div style={{ display: "flex", gap: "var(--space-sm)" }}>
+              <button
+                onClick={() => setMode("choose")}
+                className="btn btn-secondary"
+                style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
+              >
+                &larr; Powrót
+              </button>
+              <button
+                onClick={toggleFullscreen}
+                className="btn btn-secondary"
+                style={{ padding: "0.4rem 0.6rem", fontSize: "0.85rem" }}
+                title="Pełny ekran"
+              >
+                ⛶
+              </button>
+            </div>
+            <span className="reels-title">{setData.name}</span>
+            <span className="reels-counter">
+              {currentIndex + 1} / {total}
+            </span>
           </div>
-          <span className="reels-title">{setData.name}</span>
-          <span className="reels-counter">
-            {currentIndex + 1} / {total}
-          </span>
-        </div>
+        )}
 
         {/* Progress bar */}
-        <div className="reels-progress">
-          <div
-            className="reels-progress-fill"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        {!isFullscreen && (
+          <div className="reels-progress">
+            <div
+              className="reels-progress-fill"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+
+        {/* Floating exit fullscreen button */}
+        {isFullscreen && (
+          <button
+            onClick={toggleFullscreen}
+            className="btn btn-secondary"
+            style={{
+              position: "absolute",
+              top: "var(--space-md)",
+              right: "var(--space-md)",
+              padding: "0.4rem 0.6rem",
+              zIndex: 100,
+            }}
+            title="Zamknij pełny ekran"
+          >
+            🗗 Zamknij pełny ekran
+          </button>
+        )}
 
         {/* Question card */}
         <div className="reels-card-wrapper">
