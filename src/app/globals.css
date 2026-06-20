@@ -2613,6 +2613,30 @@ tbody tr:last-child td {
 }
 
 /* Dark mode: explicit text visibility */
+
+/* Settings model cards */
+[data-theme="dark"] .settings-model-name {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .settings-model-desc {
+  color: #e2e8f0;
+}
+
+/* Study mode chooser */
+[data-theme="dark"] .study-mode-option h3 {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .study-mode-option p {
+  color: #e2e8f0;
+}
+
+/* Page header subtitle text */
+[data-theme="dark"] .page-header p {
+  color: #e2e8f0;
+}
+
 [data-theme="dark"] .reels-question-text {
   color: #f1f5f9;
 }

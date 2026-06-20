@@ -217,8 +217,8 @@ export default function CreateSetPage() {
             {filledCount === 1
               ? "pytanie"
               : filledCount >= 2 && filledCount <= 4
-              ? "pytania"
-              : "pytań"}{" "}
+                ? "pytania"
+                : "pytań"}{" "}
             gotowych
           </span>
         </div>
