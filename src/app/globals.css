@@ -3509,3 +3509,619 @@ tbody tr:last-child td {
     align-self: flex-start;
   }
 }
+
+/* ==========================================================================
+   MOBILE NAVIGATION — HAMBURGER + DRAWER
+   ========================================================================== */
+
+/* Hide desktop elements on mobile */
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none;
+  }
+
+  .navbar-user {
+    display: none;
+  }
+
+  .navbar-username {
+    display: none;
+  }
+}
+
+/* Show mobile elements only on mobile */
+.navbar-mobile-right {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .navbar-mobile-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+}
+
+/* ---- Hamburger button ---- */
+.navbar-hamburger {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.navbar-hamburger:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-hover);
+}
+
+.hamburger-bar {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburger-bar.open:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger-bar.open:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.hamburger-bar.open:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ---- Mobile overlay ---- */
+.mobile-menu-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    animation: overlayFadeIn 0.25s ease forwards;
+  }
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---- Mobile drawer ---- */
+.mobile-menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 85vw);
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border);
+    z-index: 300;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+
+  .mobile-menu-open {
+    transform: translateX(0);
+  }
+}
+
+/* User info at top of drawer */
+.mobile-menu-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xl) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  margin-top: 72px; /* below navbar */
+}
+
+.mobile-menu-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-glow);
+}
+
+.mobile-menu-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.mobile-menu-user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-menu-profile-link {
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.mobile-menu-profile-link:hover {
+  color: var(--accent-primary-hover);
+}
+
+/* Nav links in drawer */
+.mobile-menu-nav {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md) 0;
+  flex: 1;
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+
+.mobile-menu-link:hover {
+  background: var(--bg-glass);
+  color: var(--text-primary);
+}
+
+.mobile-menu-link.active {
+  background: rgba(139, 92, 246, 0.08);
+  color: var(--accent-primary);
+  border-left-color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.mobile-menu-link-icon {
+  font-size: 1.2rem;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Footer with sign out */
+.mobile-menu-footer {
+  padding: var(--space-lg);
+  border-top: 1px solid var(--border);
+}
+
+/* Hide signout/username on desktop when not needed */
+@media (min-width: 769px) {
+  .navbar-mobile-right {
+    display: none;
+  }
+
+  .navbar-user {
+    display: flex;
+  }
+
+  .navbar-username {
+    display: inline;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .navbar-signout-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* ==========================================================================
+   MOBILE GLOBAL LAYOUT — iPhone 13 (390×844)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  /* Typography */
+  h1 {
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  /* Page container */
+  .page-container {
+    padding: var(--space-md) var(--space-md);
+  }
+
+  .page-header {
+    margin-bottom: var(--space-lg);
+  }
+
+  .page-header p {
+    font-size: 0.95rem;
+  }
+
+  /* Cards */
+  .card,
+  .card-static {
+    padding: var(--space-lg);
+  }
+
+  /* Buttons — touch-friendly minimum size */
+  .btn {
+    min-height: 44px;
+  }
+
+  .btn-lg {
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  /* Inputs — prevent iOS zoom (font-size must be >= 16px) */
+  .input,
+  .textarea {
+    font-size: 16px;
+  }
+
+  /* Navbar height adjustment */
+  .navbar {
+    padding: 0 var(--space-md);
+    height: 64px;
+  }
+
+  .page-container {
+    min-height: calc(100vh - 64px);
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: var(--space-md) 0.875rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+}
+
+/* iPhone safe-area support (notch / home indicator) */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .mobile-menu-footer {
+    padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+  }
+
+  @media (max-width: 768px) {
+    .navbar {
+      padding-left: max(var(--space-md), env(safe-area-inset-left));
+      padding-right: max(var(--space-md), env(safe-area-inset-right));
+    }
+  }
+}
+
+/* ==========================================================================
+   MOBILE DASHBOARD / SET GRID
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .set-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .set-card:hover {
+    transform: none; /* disable hover lift on touch */
+  }
+
+  .set-card-inner {
+    padding: var(--space-lg);
+  }
+
+  .set-card-actions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .set-action-btn {
+    min-height: 60px;
+    padding: 0.7rem 0.4rem;
+  }
+
+  .set-action-icon {
+    font-size: 1.1rem;
+  }
+
+  .set-action-label {
+    font-size: 0.72rem;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .session-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .set-card-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .set-card-header {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .set-card-header-actions {
+    align-self: flex-end;
+  }
+}
+
+/* ==========================================================================
+   MOBILE STUDY MODE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .study-mode-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .study-mode-option {
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  .study-mode-icon {
+    font-size: 2.8rem;
+  }
+
+  .study-card-header {
+    padding: var(--space-md) var(--space-lg);
+  }
+
+  .study-card-answer {
+    padding: 0 var(--space-lg) var(--space-lg);
+    padding-left: var(--space-lg);
+  }
+
+  /* Reels mode */
+  .reels-container {
+    padding: var(--space-md);
+    padding-right: 56px;
+  }
+
+  .reels-card {
+    padding: var(--space-xl) var(--space-lg);
+    min-height: 280px;
+  }
+
+  .reels-question-text {
+    font-size: 1rem;
+  }
+
+  .reels-side-nav {
+    right: 6px;
+  }
+
+  .reels-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .reels-hint {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   MOBILE SETTINGS PAGE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .settings-models-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-current-key {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .settings-section-header {
+    flex-wrap: wrap;
+  }
+}
+
+/* ==========================================================================
+   MOBILE AUTH PAGES (Login / Register)
+   ========================================================================== */
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-lg);
+    margin: 0 0.5rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .auth-card h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ==========================================================================
+   MOBILE MANUAL CREATE / EDIT SET
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .manual-create-card {
+    padding: var(--space-lg);
+  }
+
+  .manual-create-card-body {
+    gap: var(--space-md);
+  }
+}
+
+@media (max-width: 640px) {
+  .manual-create-toolbar {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+
+  .manual-create-card-complete {
+    position: static;
+    margin-top: var(--space-sm);
+    text-align: right;
+  }
+
+  .manual-create-card-header {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+}
+
+/* ==========================================================================
+   MOBILE EXPLORE PAGE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .explore-heading {
+    font-size: 1.6rem;
+  }
+
+  .explore-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .explore-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .explore-search {
+    max-width: 100%;
+  }
+
+  .explore-blob-1 { width: 300px; height: 300px; }
+  .explore-blob-2 { width: 250px; height: 250px; }
+  .explore-blob-3 { width: 200px; height: 200px; }
+}
+
+@media (max-width: 480px) {
+  .explore-card-actions {
+    flex-direction: column;
+  }
+
+  .explore-card-header {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .explore-own-badge {
+    align-self: flex-start;
+  }
+
+  .explore-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects that don't make sense on touch */
+  .set-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .set-card:hover .set-card-glow {
+    opacity: 0;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  .btn:hover {
+    transform: none !important;
+  }
+
+  /* Active states instead */
+  .btn:active {
+    transform: scale(0.97) !important;
+    opacity: 0.9;
+  }
+
+  .set-action-btn:active {
+    transform: scale(0.96);
+    background: var(--bg-glass-hover);
+  }
+
+  /* Larger tap targets */
+  .mobile-menu-link {
+    min-height: 52px;
+  }
+
+  .navbar-hamburger {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
