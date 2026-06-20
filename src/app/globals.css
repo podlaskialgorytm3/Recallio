@@ -3842,40 +3842,61 @@ tbody tr:last-child td {
   }
 }
 
+/* ── Dashboard hero action buttons ── */
+.dashboard-hero-actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
 /* ==========================================================================
    MOBILE DASHBOARD / SET GRID
    ========================================================================== */
 
 @media (max-width: 768px) {
+  /* Hero buttons: one per row on mobile */
+  .dashboard-hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .dashboard-hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
   .set-grid {
     grid-template-columns: 1fr;
     gap: var(--space-md);
   }
 
   .set-card:hover {
-    transform: none; /* disable hover lift on touch */
+    transform: none;
   }
 
   .set-card-inner {
     padding: var(--space-lg);
   }
 
+  /* Action buttons: one per row */
   .set-card-actions {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 0.4rem;
   }
 
   .set-action-btn {
-    min-height: 60px;
-    padding: 0.7rem 0.4rem;
+    min-height: 52px;
+    padding: 0.75rem 1rem;
+    flex-direction: row;
+    gap: var(--space-sm);
   }
 
   .set-action-icon {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 
   .set-action-label {
-    font-size: 0.72rem;
+    font-size: 0.9rem;
   }
 
   .stats-row {
@@ -3890,7 +3911,7 @@ tbody tr:last-child td {
 
 @media (max-width: 480px) {
   .set-card-actions {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
 
   .stats-row {
