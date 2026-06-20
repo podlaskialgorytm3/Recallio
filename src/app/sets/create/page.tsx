@@ -21,8 +21,8 @@ export default function CreateSetChooserPage() {
         <p>Wybierz w jaki sposób chcesz utworzyć swój nowy zestaw pytań.</p>
       </div>
 
-      <div style={{ marginTop: "var(--space-xl)" }}>
-        <div className="study-mode-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
+      <div style={{ marginTop: "var(--space-xl)", maxWidth: "600px", margin: "var(--space-xl) auto 0" }}>
+        <div className="study-mode-grid" style={{ gridTemplateColumns: "1fr" }}>
           
           {/* Upload JSON */}
           <Link 
