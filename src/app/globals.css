@@ -3514,38 +3514,33 @@ tbody tr:last-child td {
    MOBILE NAVIGATION — HAMBURGER + DRAWER
    ========================================================================== */
 
-/* Hide desktop elements on mobile */
-@media (max-width: 768px) {
-  .navbar-links {
-    display: none;
-  }
-
-  .navbar-user {
-    display: none;
-  }
-
-  .navbar-username {
-    display: none;
-  }
-}
-
-/* Show mobile elements only on mobile */
+/* ── Hamburger: visible only on mobile ── */
 .navbar-mobile-right {
   display: none;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 @media (max-width: 768px) {
   .navbar-mobile-right {
     display: flex;
-    align-items: center;
-    gap: var(--space-sm);
+  }
+
+  /* Hide desktop-only elements */
+  .navbar-links {
+    display: none !important;
+  }
+
+  .navbar-user {
+    display: none !important;
   }
 }
 
-/* ---- Hamburger button ---- */
+/* ── Hamburger button ── */
 .navbar-hamburger {
   width: 44px;
   height: 44px;
+  min-width: 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3587,65 +3582,71 @@ tbody tr:last-child td {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* ---- Mobile overlay ---- */
+/* ── Overlay ── (conditionally rendered via JSX) */
 .mobile-menu-overlay {
-  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  animation: overlayFadeIn 0.25s ease forwards;
 }
 
-@media (max-width: 768px) {
-  .mobile-menu-overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 200;
-    animation: overlayFadeIn 0.25s ease forwards;
-  }
+.mobile-menu-overlay.closing {
+  animation: overlayFadeOut 0.3s ease forwards;
 }
 
 @keyframes overlayFadeIn {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
 }
 
-/* ---- Mobile drawer ---- */
+@keyframes overlayFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ── Drawer ── (conditionally rendered via JSX — always "visible" when mounted) */
 .mobile-menu {
-  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 85vw);
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+  animation: drawerSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
-@media (max-width: 768px) {
-  .mobile-menu {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: min(320px, 85vw);
-    background: var(--bg-secondary);
-    border-left: 1px solid var(--border);
-    z-index: 300;
-    transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-y: auto;
-    padding-bottom: env(safe-area-inset-bottom, 16px);
-  }
-
-  .mobile-menu-open {
-    transform: translateX(0);
-  }
+.mobile-menu.closing {
+  animation: drawerSlideOut 0.3s ease forwards;
 }
 
-/* User info at top of drawer */
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes drawerSlideOut {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+/* ── Drawer contents ── */
 .mobile-menu-user {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-xl) var(--space-lg);
+  padding: var(--space-lg) var(--space-lg);
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
-  margin-top: 72px; /* below navbar */
+  margin-top: 64px; /* height of mobile navbar */
 }
 
 .mobile-menu-avatar {
@@ -3666,13 +3667,14 @@ tbody tr:last-child td {
 .mobile-menu-user-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   overflow: hidden;
 }
 
 .mobile-menu-user-name {
   font-weight: 600;
   font-size: 0.95rem;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3689,11 +3691,10 @@ tbody tr:last-child td {
   color: var(--accent-primary-hover);
 }
 
-/* Nav links in drawer */
 .mobile-menu-nav {
   display: flex;
   flex-direction: column;
-  padding: var(--space-md) 0;
+  padding: var(--space-sm) 0;
   flex: 1;
 }
 
@@ -3701,12 +3702,13 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md) var(--space-lg);
+  padding: 0.875rem var(--space-lg);
   font-size: 1rem;
   font-weight: 500;
   color: var(--text-secondary);
   transition: background var(--transition-fast), color var(--transition-fast);
   border-left: 3px solid transparent;
+  min-height: 52px;
 }
 
 .mobile-menu-link:hover {
@@ -3715,7 +3717,7 @@ tbody tr:last-child td {
 }
 
 .mobile-menu-link.active {
-  background: rgba(139, 92, 246, 0.08);
+  background: rgba(139, 92, 246, 0.1);
   color: var(--accent-primary);
   border-left-color: var(--accent-primary);
   font-weight: 600;
@@ -3728,32 +3730,27 @@ tbody tr:last-child td {
   flex-shrink: 0;
 }
 
-/* Footer with sign out */
 .mobile-menu-footer {
   padding: var(--space-lg);
   border-top: 1px solid var(--border);
 }
 
-/* Hide signout/username on desktop when not needed */
+/* ── Desktop overrides — ensure hamburger never shows on desktop ── */
 @media (min-width: 769px) {
   .navbar-mobile-right {
-    display: none;
+    display: none !important;
   }
+}
 
-  .navbar-user {
-    display: flex;
-  }
+/* ── Navbar username styling ── */
+.navbar-username {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
 
-  .navbar-username {
-    display: inline;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-  }
-
-  .navbar-signout-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
+.navbar-signout-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
 }
 
 /* ==========================================================================
