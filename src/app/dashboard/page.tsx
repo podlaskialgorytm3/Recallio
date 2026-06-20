@@ -162,12 +162,26 @@ export default function DashboardPage() {
           </h1>
           <p>Wybierz zestaw pytań lub wgraj nowy, aby rozpocząć naukę.</p>
         </div>
-        <div className="dashboard-hero-actions">
-          <Link href="/sets/create" className="btn btn-primary btn-lg">
-            ✏️ Utwórz ręcznie
-          </Link>
-          <Link href="/sets/upload" className="btn btn-secondary btn-lg">
-            📁 Wgraj JSON
+        <div className="dashboard-hero-actions" style={{ position: "relative" }}>
+          <div className="tooltip-bubble animate-fade-in-up" style={{
+            position: "absolute",
+            top: "-40px",
+            right: 0,
+            background: "var(--accent-gradient)",
+            color: "white",
+            padding: "4px 12px",
+            borderRadius: "12px",
+            fontSize: "0.8rem",
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            boxShadow: "var(--shadow-glow)",
+            zIndex: 10,
+            pointerEvents: "none"
+          }}>
+            ✨ Nowość: Inteligentne tworzenie z AI!
+          </div>
+          <Link href="/sets/create" className="btn btn-primary btn-lg" style={{ width: "100%" }}>
+            ➕ Kreacja zestawu
           </Link>
         </div>
       </div>
@@ -180,10 +194,7 @@ export default function DashboardPage() {
             <p>Utwórz swój pierwszy zestaw pytań ręcznie lub wgraj plik JSON, aby rozpocząć naukę!</p>
             <div className="dashboard-hero-actions">
               <Link href="/sets/create" className="btn btn-primary btn-lg">
-                ✏️ Utwórz ręcznie
-              </Link>
-              <Link href="/sets/upload" className="btn btn-secondary btn-lg">
-                📁 Wgraj JSON
+                ➕ Kreacja zestawu
               </Link>
             </div>
           </div>

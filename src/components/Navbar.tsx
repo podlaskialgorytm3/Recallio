@@ -40,8 +40,7 @@ export default function Navbar() {
 
   const links = [
     { href: "/dashboard",   label: "Dashboard",     icon: "🏠" },
-    { href: "/sets/upload", label: "Wgraj zestaw",  icon: "📤" },
-    { href: "/sets/create", label: "Utwórz zestaw", icon: "✏️" },
+    { href: "/sets/create", label: "Kreacja zestawu", icon: "➕" },
     { href: "/explore",     label: "Przeglądaj",    icon: "🌍" },
     { href: "/history",     label: "Historia",      icon: "📋" },
     { href: "/settings",    label: "Ustawienia",    icon: "⚙️" },
