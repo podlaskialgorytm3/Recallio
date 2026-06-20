@@ -155,8 +155,8 @@ export default function DashboardPage() {
 
   return (
     <div className="page-container">
-      <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
+      <div className="dashboard-header">
+        <div className="dashboard-header-text">
           <h1>
             Witaj, <span className="text-gradient">{session?.user?.name || session?.user?.email?.split("@")[0]}</span>! 👋
           </h1>
