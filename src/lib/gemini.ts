@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 interface GradeResult {
   score: number;
@@ -28,10 +28,10 @@ export async function gradeAnswer(
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema: {
-        type: "object" as const,
+        type: SchemaType.OBJECT,
         properties: {
-          score: { type: "number" as const },
-          feedback: { type: "string" as const },
+          score: { type: SchemaType.NUMBER },
+          feedback: { type: SchemaType.STRING },
         },
         required: ["score", "feedback"],
       },
