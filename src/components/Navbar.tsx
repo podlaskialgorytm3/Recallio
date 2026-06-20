@@ -51,7 +51,7 @@ export default function Navbar() {
       <nav className="navbar">
         {/* Logo */}
         <Link href="/dashboard" className="navbar-logo">
-          <span className="logo-icon">🧠</span>
+          <img src="/icon-192x192.png" alt="Recallio Logo" style={{ width: 28, height: 28, borderRadius: "6px", marginRight: "8px", boxShadow: "0 2px 8px rgba(139, 92, 246, 0.4)" }} />
           <span className="text-gradient">Recallio</span>
         </Link>
 

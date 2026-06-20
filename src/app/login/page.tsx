@@ -57,8 +57,8 @@ export default function LoginPage() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div style={{ fontSize: "3rem", marginBottom: "var(--space-md)" }}>
-            🧠
+          <div style={{ marginBottom: "var(--space-md)", display: "flex", justifyContent: "center" }}>
+            <img src="/icon-192x192.png" alt="Recallio Logo" style={{ width: 64, height: 64, borderRadius: "16px", boxShadow: "0 6px 16px rgba(139, 92, 246, 0.4)" }} />
           </div>
           <h1 className="text-gradient">
             {isRegister ? "Utwórz konto" : "Zaloguj się"}
