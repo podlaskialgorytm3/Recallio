@@ -194,32 +194,147 @@ export default function SmartCreatePage() {
           </div>
         )}
 
-        <div className="card-static animate-fade-in-up">
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)" }}>
+        {/* STYLES */}
+        <style dangerouslySetInnerHTML={{__html: `
+          .smart-card {
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.15);
+          }
+          
+          .ocean-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.6;
+          }
+          
+          .ocean-blob {
+            position: absolute;
+            filter: blur(80px);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out alternate;
+          }
+          
+          .blob-1 {
+            width: 400px; height: 400px;
+            background: rgba(59, 130, 246, 0.25);
+            top: -150px; left: -100px;
+          }
+          
+          .blob-2 {
+            width: 500px; height: 500px;
+            background: rgba(139, 92, 246, 0.2);
+            bottom: -200px; right: -150px;
+            animation-delay: -7s;
+          }
+          
+          @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
+          }
+
+          .content-relative {
+            position: relative;
+            z-index: 1;
+          }
+
+          .premium-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238b5cf6%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem top 50%;
+            background-size: 0.65rem auto;
+            padding-right: 2.5rem;
+            cursor: pointer;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+          }
+          
+          .premium-select:hover {
+            border-color: var(--accent-primary);
+          }
+
+          .premium-input {
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+          }
+          
+          .premium-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+          }
+
+          .premium-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--border);
+            outline: none;
+            margin-top: 10px;
+            margin-bottom: 10px;
+          }
+
+          .premium-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            transition: transform 0.2s;
+          }
+
+          .premium-range::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+          }
+        `}} />
+
+        <div className="smart-card animate-fade-in-up">
+          <div className="ocean-bg">
+            <div className="ocean-blob blob-1"></div>
+            <div className="ocean-blob blob-2"></div>
+          </div>
+          
+          <div className="content-relative" style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)" }}>
             
             {/* File Upload */}
             <div className="input-group">
               <label>📄 Plik źródłowy (max 2 pliki: .pdf, .md, .txt)</label>
-              <input
-                type="file"
-                accept=".pdf,.md,.txt"
-                multiple
-                className="input"
-                onChange={handleFileChange}
-                style={{ padding: "0.5rem" }}
-              />
+              <label className="upload-zone" style={{ padding: "var(--space-xl)", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", background: "var(--bg-glass)" }}>
+                <div className="upload-zone-icon" style={{ fontSize: "2.5rem" }}>📁</div>
+                <div className="upload-zone-text">
+                  <strong>Kliknij, aby wybrać pliki</strong> lub upuść je tutaj
+                </div>
+                <input
+                  type="file"
+                  accept=".pdf,.md,.txt"
+                  multiple
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+              </label>
               {files.length > 0 && (
-                <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "4px" }}>
+                <div style={{ fontSize: "0.95rem", color: "var(--accent-primary)", marginTop: "8px", fontWeight: "600", textAlign: "center" }}>
                   Wybrano: {files.map(f => f.name).join(", ")}
                 </div>
               )}
             </div>
 
             {/* Range sliders row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-lg)" }}>
               <div className="input-group">
-                <label>
-                  🔢 Ilość pytań: <span style={{ color: "var(--accent-primary)", fontWeight: "bold" }}>{questionCount}</span>
+                <label style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>🔢 Ilość pytań</span>
+                  <span style={{ color: "var(--accent-primary)", fontWeight: "bold" }}>{questionCount}</span>
                 </label>
                 <input
                   type="range"
@@ -227,13 +342,14 @@ export default function SmartCreatePage() {
                   max="50"
                   value={questionCount}
                   onChange={(e) => setQuestionCount(Number(e.target.value))}
-                  style={{ accentColor: "var(--accent-primary)" }}
+                  className="premium-range"
                 />
               </div>
 
               <div className="input-group">
-                <label>
-                  📏 Długość odpowiedzi: <span style={{ color: "var(--accent-primary)", fontWeight: "bold" }}>~{answerLength} słów</span>
+                <label style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span>📏 Długość odpowiedzi</span>
+                  <span style={{ color: "var(--accent-primary)", fontWeight: "bold" }}>~{answerLength} słów</span>
                 </label>
                 <input
                   type="range"
@@ -242,20 +358,19 @@ export default function SmartCreatePage() {
                   step="10"
                   value={answerLength}
                   onChange={(e) => setAnswerLength(Number(e.target.value))}
-                  style={{ accentColor: "var(--accent-primary)" }}
+                  className="premium-range"
                 />
               </div>
             </div>
 
             {/* Selects row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-lg)" }}>
               <div className="input-group">
                 <label>🎯 Poziom trudności</label>
                 <select 
-                  className="input" 
+                  className="input premium-select" 
                   value={difficulty} 
                   onChange={(e) => setDifficulty(e.target.value)}
-                  style={{ backgroundColor: "var(--bg-glass)", appearance: "none" }}
                 >
                   <option value="Łatwy" style={{ color: "black" }}>Łatwy</option>
                   <option value="Średni" style={{ color: "black" }}>Średni</option>
@@ -267,10 +382,9 @@ export default function SmartCreatePage() {
               <div className="input-group">
                 <label>🗣️ Język generowanych pytań</label>
                 <select 
-                  className="input" 
+                  className="input premium-select" 
                   value={language} 
                   onChange={(e) => setLanguage(e.target.value)}
-                  style={{ backgroundColor: "var(--bg-glass)", appearance: "none" }}
                 >
                   <option value="Auto" style={{ color: "black" }}>Auto-wykryj z pliku</option>
                   <option value="Polski" style={{ color: "black" }}>Polski</option>
@@ -284,7 +398,7 @@ export default function SmartCreatePage() {
               <label>📚 Zakres tematyczny (opcjonalnie)</label>
               <input
                 type="text"
-                className="input"
+                className="input premium-input"
                 placeholder='np. "skup się tylko na rozdziale 3"'
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
