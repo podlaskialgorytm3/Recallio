@@ -162,7 +162,7 @@ export default function DashboardPage() {
           </h1>
           <p>Wybierz zestaw pytań lub wgraj nowy, aby rozpocząć naukę.</p>
         </div>
-        <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
+        <div className="dashboard-hero-actions">
           <Link href="/sets/create" className="btn btn-primary btn-lg">
             ✏️ Utwórz ręcznie
           </Link>
@@ -178,7 +178,7 @@ export default function DashboardPage() {
             <div className="empty-state-icon">📚</div>
             <h3>Brak zestawów pytań</h3>
             <p>Utwórz swój pierwszy zestaw pytań ręcznie lub wgraj plik JSON, aby rozpocząć naukę!</p>
-            <div style={{ display: "flex", gap: "var(--space-sm)", justifyContent: "center", flexWrap: "wrap" }}>
+            <div className="dashboard-hero-actions">
               <Link href="/sets/create" className="btn btn-primary btn-lg">
                 ✏️ Utwórz ręcznie
               </Link>
