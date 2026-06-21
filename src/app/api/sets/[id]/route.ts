@@ -14,14 +14,18 @@ export async function GET(
 
   const { id } = await params;
 
-  // Allow fetching own sets OR public sets
+  // Allow fetching own sets OR public sets OR if user is ADMIN
+  const isAdmin = (session.user as any).role === "ADMIN";
+  
   const set = await prisma.questionSet.findFirst({
     where: {
       id,
-      OR: [
-        { userId: session.user.id },
-        { isPublic: true },
-      ],
+      ...(isAdmin ? {} : {
+        OR: [
+          { userId: session.user.id },
+          { isPublic: true },
+        ],
+      }),
     },
     include: {
       questions: { orderBy: { externalId: "asc" } },
