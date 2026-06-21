@@ -21,6 +21,14 @@ export async function GET() {
         globalKeyCost: true,
         ownKeyCost: true,
         geminiApiKey: true,
+        userSubscription: {
+          select: {
+            planId: true,
+            checkedRemaining: true,
+            generatedRemaining: true,
+            plan: { select: { name: true } }
+          }
+        },
         _count: {
           select: { questionSets: true, sessions: true }
         }

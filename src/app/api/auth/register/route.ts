@@ -38,6 +38,9 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         name: name || null,
+        userSubscription: {
+          create: {}
+        }
       },
     });
 

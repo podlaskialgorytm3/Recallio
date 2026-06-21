@@ -50,11 +50,21 @@ export async function POST(
       );
     }
 
-    // Get user's Gemini settings
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { geminiApiKey: true, geminiModel: true },
     });
+
+    const userSub = await prisma.userSubscription.findUnique({
+      where: { userId: session.user.id }
+    });
+
+    if (!userSub || userSub.checkedRemaining <= 0) {
+      return NextResponse.json(
+        { error: "Wyczerpałeś limit sprawdzonych pytań. Zgłoś się do administratora lub dokup pakiet." },
+        { status: 403 }
+      );
+    }
 
     // Grade with AI (requires user's own API key from settings)
     const gradeResult = await gradeAnswer(
@@ -84,6 +94,12 @@ export async function POST(
         score: gradeResult.score,
         feedback: gradeResult.feedback,
       },
+    });
+
+    // Decrement check limit
+    await prisma.userSubscription.update({
+      where: { userId: session.user.id },
+      data: { checkedRemaining: { decrement: 1 } }
     });
 
     return NextResponse.json({

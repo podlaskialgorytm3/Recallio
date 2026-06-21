@@ -20,8 +20,10 @@ model User {
   ownKeyCost    Float         @default(0)
   role          Role          @default(USER)
   createdAt     DateTime      @default(now())
-  questionSets QuestionSet[]
-  sessions     Session[]
+  questionSets     QuestionSet[]
+  sessions         Session[]
+  userSubscription UserSubscription?
+  purchases        PurchaseHistory[]
 }
 
 enum Role {
@@ -97,4 +99,53 @@ model RoundAnswer {
 
   @@index([roundId])
   @@index([questionId])
+}
+
+model SubscriptionPlan {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  description     String?  @db.Text
+  checkLimit      Int
+  generateLimit   Int
+  price           Float
+  resetType       String   @default("ONETIME") // "ONETIME" | "CYCLIC"
+  resetPeriodDays Int?
+  validDays       Int?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  users           UserSubscription[]
+  purchases       PurchaseHistory[]
+}
+
+model UserSubscription {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  planId             String?
+  plan               SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  
+  checkedRemaining   Int      @default(10)
+  generatedRemaining Int      @default(10)
+  
+  nextResetAt        DateTime?
+  expiresAt          DateTime?
+  
+  updatedAt          DateTime @updatedAt
+}
+
+model PurchaseHistory {
+  id              String   @id @default(cuid())
+  userId          String
+  planId          String
+  price           Float
+  purchasedAt     DateTime @default(now())
+  
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            SubscriptionPlan @relation(fields: [planId], references: [id])
+  
+  @@index([userId])
+  @@index([planId])
 }

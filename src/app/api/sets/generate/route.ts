@@ -29,6 +29,19 @@ export async function POST(req: Request) {
       select: { geminiApiKey: true, geminiModel: true },
     });
 
+    const userSub = await prisma.userSubscription.findUnique({
+      where: { userId: session.user.id }
+    });
+
+    const questionsToGenerate = Number(questionCount);
+
+    if (!userSub || userSub.generatedRemaining < questionsToGenerate) {
+      return NextResponse.json(
+        { error: "Wyczerpałeś limit wygenerowanych pytań. Zgłoś się do administratora lub dokup pakiet." },
+        { status: 403 }
+      );
+    }
+
     const effectiveModel = user?.geminiModel || "gemini-2.5-flash";
     const apiKeyToUse = user?.geminiApiKey || process.env.GEMINI_API_KEY;
 
@@ -124,6 +137,14 @@ export async function POST(req: Request) {
          throw new Error("Nie udało się odczytać odpowiedzi JSON z modelu AI.");
       }
     }
+
+    // Decrement limits
+    await prisma.userSubscription.update({
+      where: { userId: session.user.id },
+      data: {
+        generatedRemaining: { decrement: parsed.length }
+      }
+    });
 
     return NextResponse.json({ questions: parsed });
 
