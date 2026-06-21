@@ -211,7 +211,7 @@ export default function SettingsPage() {
         <h1>
           <span className="text-gradient">⚙️ Ustawienia</span>
         </h1>
-        <p>Skonfiguruj swój klucz API i model Gemini do oceniania odpowiedzi.</p>
+        <p>Podłącz swoje Gemini AI od Google, aby móc korzystać z inteligentnej oceny. W przyszłości wprowadzimy specjalny pakiet premium dla użytkowników, którzy chcieliby korzystać z AI bez własnego klucza!</p>
       </div>
 
       {/* API Key Section */}
@@ -314,7 +314,7 @@ export default function SettingsPage() {
           <div className="settings-info" style={{ marginTop: "var(--space-lg)" }}>
             <span className="settings-info-icon">ℹ️</span>
             <span>
-              Bez własnego klucza API system używa klucza globalnego. Ustaw własny klucz, aby mieć pełną kontrolę nad limitem i kosztami.
+              Podłącz swoje Gemini AI od Google wprowadzając własny klucz API. W przyszłości planujemy udostępnić specjalny pakiet, który umożliwi korzystanie z tej funkcjonalności bez konieczności konfiguracji własnego klucza.
             </span>
           </div>
         )}
