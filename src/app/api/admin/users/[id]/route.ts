@@ -57,7 +57,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await req.json();
-    const { email, name } = body;
+    const { email, name, checkedRemaining, generatedRemaining } = body;
 
     if (!email) {
       return NextResponse.json(
@@ -85,6 +85,22 @@ export async function PATCH(
         name: name || null,
       },
     });
+
+    // Update Subscription limits if provided
+    if (checkedRemaining !== undefined && generatedRemaining !== undefined) {
+      await prisma.userSubscription.upsert({
+        where: { userId: id },
+        create: {
+          userId: id,
+          checkedRemaining: Number(checkedRemaining),
+          generatedRemaining: Number(generatedRemaining),
+        },
+        update: {
+          checkedRemaining: Number(checkedRemaining),
+          generatedRemaining: Number(generatedRemaining),
+        }
+      });
+    }
 
     return NextResponse.json(updatedUser);
   } catch (error) {

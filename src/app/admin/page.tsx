@@ -73,6 +73,8 @@ export default function AdminDashboardPage() {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [editEmail, setEditEmail] = useState("");
   const [editName, setEditName] = useState("");
+  const [editCheckedLimit, setEditCheckedLimit] = useState(0);
+  const [editGeneratedLimit, setEditGeneratedLimit] = useState(0);
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
 
@@ -165,6 +167,8 @@ export default function AdminDashboardPage() {
     setEditingUser(user);
     setEditEmail(user.email);
     setEditName(user.name || "");
+    setEditCheckedLimit(user.userSubscription?.checkedRemaining || 0);
+    setEditGeneratedLimit(user.userSubscription?.generatedRemaining || 0);
     setEditError("");
   };
 
@@ -177,7 +181,12 @@ export default function AdminDashboardPage() {
       const res = await fetch(`/api/admin/users/${editingUser.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: editEmail, name: editName }),
+        body: JSON.stringify({ 
+          email: editEmail, 
+          name: editName,
+          checkedRemaining: editCheckedLimit,
+          generatedRemaining: editGeneratedLimit
+        }),
       });
 
       if (!res.ok) {
@@ -185,9 +194,7 @@ export default function AdminDashboardPage() {
         throw new Error(data.error || "Nie udało się zaktualizować użytkownika.");
       }
 
-      const updatedUser = await res.json();
-      
-      setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, email: updatedUser.email, name: updatedUser.name } : u));
+      await fetchData(); // Reload all users to refresh limits and names
       setEditingUser(null);
     } catch (err: any) {
       setEditError(err.message || "Wystąpił błąd.");
@@ -710,7 +717,7 @@ export default function AdminDashboardPage() {
               />
             </div>
 
-            <div className="input-group" style={{ marginBottom: "1.5rem" }}>
+            <div className="input-group" style={{ marginBottom: "1rem" }}>
               <label>Imię / Pseudonim</label>
               <input 
                 type="text" 
@@ -718,6 +725,27 @@ export default function AdminDashboardPage() {
                 value={editName} 
                 onChange={(e) => setEditName(e.target.value)} 
               />
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+              <div className="input-group" style={{ flex: 1 }}>
+                <label>Limit Sprawdzeń</label>
+                <input 
+                  type="number" 
+                  className="input" 
+                  value={editCheckedLimit} 
+                  onChange={(e) => setEditCheckedLimit(Number(e.target.value))} 
+                />
+              </div>
+              <div className="input-group" style={{ flex: 1 }}>
+                <label>Limit Generacji</label>
+                <input 
+                  type="number" 
+                  className="input" 
+                  value={editGeneratedLimit} 
+                  onChange={(e) => setEditGeneratedLimit(Number(e.target.value))} 
+                />
+              </div>
             </div>
 
             <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
