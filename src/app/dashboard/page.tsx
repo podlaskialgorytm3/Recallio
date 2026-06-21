@@ -30,11 +30,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [resumingId, setResumingId] = useState<string | null>(null);
 
+  // Wallet State
+  const [wallet, setWallet] = useState<{hasOwnKey: boolean; checkedRemaining: number; generatedRemaining: number} | null>(null);
+  const [fulfillmentMsg, setFulfillmentMsg] = useState("");
+
   const fetchData = useCallback(async () => {
     try {
-      const [setsRes, historyRes] = await Promise.all([
+      const [setsRes, historyRes, walletRes] = await Promise.all([
         fetch("/api/sets"),
         fetch("/api/history"),
+        fetch("/api/user/wallet"),
       ]);
 
       if (setsRes.ok) {
@@ -48,6 +53,11 @@ export default function DashboardPage() {
           historyData.filter((s: ActiveSession) => s.status === "active")
         );
       }
+
+      if (walletRes.ok) {
+        const walletData = await walletRes.json();
+        setWallet(walletData);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -60,7 +70,35 @@ export default function DashboardPage() {
       router.push("/login");
       return;
     }
-    if (status === "authenticated") {
+    
+    // Check for Stripe session fulfillment
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    const success = params.get("success");
+
+    const fulfillPayment = async () => {
+      try {
+        const res = await fetch("/api/checkout/fulfill", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setFulfillmentMsg("Płatność zatwierdzona! Limity zostały dodane do Twojego portfela.");
+          // remove params from url without reloading
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (err) {
+        console.error("Fulfillment error:", err);
+      } finally {
+        if (status === "authenticated") fetchData();
+      }
+    };
+
+    if (success === "true" && sessionId) {
+      fulfillPayment();
+    } else if (status === "authenticated") {
       fetchData();
     }
   }, [status, router, fetchData]);
@@ -185,6 +223,57 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
+
+      {fulfillmentMsg && (
+        <div style={{ background: "var(--success-color)", color: "white", padding: "1rem", borderRadius: "8px", marginBottom: "2rem", textAlign: "center" }}>
+          {fulfillmentMsg}
+        </div>
+      )}
+
+      {/* Wallet Widget */}
+      {wallet && (
+        <div className="card-static animate-fade-in-up" style={{ marginBottom: "2rem", padding: "1.5rem" }}>
+          <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span>💳</span> Twój Portfel AI
+          </h2>
+          {wallet.hasOwnKey ? (
+            <div style={{ background: "rgba(34, 197, 94, 0.1)", border: "1px solid var(--success-color)", padding: "1rem", borderRadius: "8px", color: "var(--success-color)", fontWeight: "bold" }}>
+              Korzystasz z własnego klucza API Gemini. Nielimitowany dostęp do generowania i sprawdzania pytań!
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: "200px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Pytania do wygenerowania</span>
+                  <span style={{ fontWeight: "bold" }}>{wallet.generatedRemaining}</span>
+                </div>
+                <div style={{ width: "100%", height: "8px", background: "var(--border-color)", borderRadius: "4px", overflow: "hidden" }}>
+                  <div style={{ width: `${Math.min(100, (wallet.generatedRemaining / 100) * 100)}%`, height: "100%", background: "var(--accent-primary)", borderRadius: "4px" }} />
+                </div>
+              </div>
+              <div style={{ flex: 1, minWidth: "200px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                  <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Pytania do sprawdzenia</span>
+                  <span style={{ fontWeight: "bold" }}>{wallet.checkedRemaining}</span>
+                </div>
+                <div style={{ width: "100%", height: "8px", background: "var(--border-color)", borderRadius: "4px", overflow: "hidden" }}>
+                  <div style={{ width: `${Math.min(100, (wallet.checkedRemaining / 100) * 100)}%`, height: "100%", background: "var(--success-color)", borderRadius: "4px" }} />
+                </div>
+              </div>
+              {wallet.generatedRemaining === 0 && wallet.checkedRemaining === 0 && (
+                <div style={{ width: "100%", marginTop: "1rem" }}>
+                  <Link href="/pricing" className="btn btn-primary" style={{ fontSize: "0.9rem", padding: "0.5rem 1rem" }}>
+                    🛒 Dokup pakiet
+                  </Link>
+                  <span style={{ color: "var(--text-secondary)", fontSize: "0.85rem", marginLeft: "1rem" }}>
+                    lub podepnij własny klucz w <Link href="/settings" style={{ color: "var(--accent-primary)" }}>Ustawieniach</Link>.
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {sets.length === 0 ? (
         <div className="card-static">

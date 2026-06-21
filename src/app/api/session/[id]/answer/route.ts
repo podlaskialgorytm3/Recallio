@@ -59,9 +59,11 @@ export async function POST(
       where: { userId: session.user.id }
     });
 
-    if (!userSub || userSub.checkedRemaining <= 0) {
+    const isOwnKey = !!user?.geminiApiKey;
+
+    if (!isOwnKey && (!userSub || userSub.checkedRemaining <= 0)) {
       return NextResponse.json(
-        { error: "Wyczerpałeś limit sprawdzonych pytań. Zgłoś się do administratora lub dokup pakiet." },
+        { error: "Wyczerpałeś limit sprawdzonych pytań. Zgłoś się do administratora, dokup pakiet lub podepnij własny klucz API w Ustawieniach." },
         { status: 403 }
       );
     }
@@ -96,11 +98,13 @@ export async function POST(
       },
     });
 
-    // Decrement check limit
-    await prisma.userSubscription.update({
-      where: { userId: session.user.id },
-      data: { checkedRemaining: { decrement: 1 } }
-    });
+    // Decrement check limit only if using global key
+    if (!isOwnKey) {
+      await prisma.userSubscription.update({
+        where: { userId: session.user.id },
+        data: { checkedRemaining: { decrement: 1 } }
+      });
+    }
 
     return NextResponse.json({
       ...roundAnswer,

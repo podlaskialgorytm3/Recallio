@@ -35,9 +35,11 @@ export async function POST(req: Request) {
 
     const questionsToGenerate = Number(questionCount);
 
-    if (!userSub || userSub.generatedRemaining < questionsToGenerate) {
+    const isOwnKey = !!user?.geminiApiKey;
+
+    if (!isOwnKey && (!userSub || userSub.generatedRemaining < questionsToGenerate)) {
       return NextResponse.json(
-        { error: "Wyczerpałeś limit wygenerowanych pytań. Zgłoś się do administratora lub dokup pakiet." },
+        { error: "Wyczerpałeś limit wygenerowanych pytań. Zgłoś się do administratora, dokup pakiet lub podepnij własny klucz API w Ustawieniach." },
         { status: 403 }
       );
     }
@@ -138,13 +140,15 @@ export async function POST(req: Request) {
       }
     }
 
-    // Decrement limits
-    await prisma.userSubscription.update({
-      where: { userId: session.user.id },
-      data: {
-        generatedRemaining: { decrement: parsed.length }
-      }
-    });
+    // Decrement limits only if using global key
+    if (!isOwnKey) {
+      await prisma.userSubscription.update({
+        where: { userId: session.user.id },
+        data: {
+          generatedRemaining: { decrement: parsed.length }
+        }
+      });
+    }
 
     return NextResponse.json({ questions: parsed });
 
