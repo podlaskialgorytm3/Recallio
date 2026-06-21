@@ -386,97 +386,99 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="card-static">
-                <h3>Lista Użytkowników</h3>
-                <div className="table-responsive" style={{ marginTop: "1rem" }}>
+              <div className="card-static" style={{ padding: 0, overflow: "hidden" }}>
+                <div style={{ padding: "1.5rem", borderBottom: "1px solid var(--border-color)" }}>
+                  <h3 style={{ margin: 0 }}>Zarządzanie Użytkownikami</h3>
+                </div>
+                <div className="table-responsive">
                   <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
                     <thead>
-                      <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
-                        <th style={{ padding: "0.5rem" }}>Email</th>
-                        <th style={{ padding: "0.5rem" }}>Imię</th>
-                        <th style={{ padding: "0.5rem" }}>Rola</th>
-                        <th style={{ padding: "0.5rem" }}>Koszty AI</th>
-                        <th style={{ padding: "0.5rem" }}>Portfel (L. pytań)</th>
-                        <th style={{ padding: "0.5rem" }}>Zestawy</th>
-                        <th style={{ padding: "0.5rem" }}>Sesje</th>
-                        <th style={{ padding: "0.5rem" }}>Akcje</th>
+                      <tr style={{ background: "rgba(255, 255, 255, 0.02)", borderBottom: "1px solid var(--border-color)" }}>
+                        <th style={{ padding: "1rem 1.5rem", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-secondary)" }}>Użytkownik</th>
+                        <th style={{ padding: "1rem 1.5rem", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-secondary)" }}>Rola</th>
+                        <th style={{ padding: "1rem 1.5rem", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-secondary)" }}>Koszty AI</th>
+                        <th style={{ padding: "1rem 1.5rem", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-secondary)" }}>Portfel limitów</th>
+                        <th style={{ padding: "1rem 1.5rem", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-secondary)", textAlign: "center" }}>Zestawy</th>
+                        <th style={{ padding: "1rem 1.5rem", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-secondary)", textAlign: "center" }}>Sesje</th>
+                        <th style={{ padding: "1rem 1.5rem", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-secondary)", textAlign: "center" }}>Akcje</th>
                       </tr>
                     </thead>
                     <tbody>
                       {users.map(u => (
-                        <tr key={u.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                          <td style={{ padding: "0.5rem" }}>{u.email}</td>
-                          <td style={{ padding: "0.5rem" }}>{u.name || "-"}</td>
-                          <td style={{ padding: "0.5rem" }}>
-                            <span className={`badge ${u.role === 'ADMIN' ? 'badge-warning' : 'badge-info'}`}>
-                              {u.role}
+                        <tr key={u.id} style={{ borderBottom: "1px solid var(--border-color)", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.02)"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                          <td style={{ padding: "1rem 1.5rem", verticalAlign: "middle" }}>
+                            <div style={{ fontWeight: 600 }}>{u.name || "Brak imienia"}</div>
+                            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{u.email}</div>
+                          </td>
+                          <td style={{ padding: "1rem 1.5rem", verticalAlign: "middle" }}>
+                            <span className={`badge ${u.role === 'ADMIN' ? 'badge-warning' : 'badge-info'}`} style={{ padding: "0.3rem 0.6rem", borderRadius: "6px" }}>
+                              {u.role === 'ADMIN' ? '👑 ADMIN' : '👤 USER'}
                             </span>
                           </td>
-                          <td style={{ padding: "0.5rem" }}>
+                          <td style={{ padding: "1rem 1.5rem", verticalAlign: "middle" }}>
                             {u.hasOwnKey ? (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-                                <span style={{ fontSize: "0.8rem", color: "var(--success)" }}>Własny klucz</span>
-                                <div style={{ background: "rgba(16, 185, 129, 0.2)", borderRadius: "4px", padding: "0.2rem 0.5rem", fontSize: "0.85rem", color: "var(--success)", border: "1px solid rgba(16,185,129,0.3)" }}>
-                                  ${(u.ownKeyCost || 0).toFixed(4)}
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(34, 197, 94, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--success-color)" }}>🔑</div>
+                                <div>
+                                  <div style={{ fontSize: "0.75rem", color: "var(--success-color)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Własny klucz</div>
+                                  <div style={{ fontWeight: "bold" }}>${(u.ownKeyCost || 0).toFixed(4)}</div>
                                 </div>
                               </div>
                             ) : (
-                              <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-                                <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Klucz Globalny</span>
-                                <div style={{ background: "var(--bg-glass-hover)", borderRadius: "4px", padding: "0.2rem 0.5rem", fontSize: "0.85rem", color: "var(--accent-primary)", border: "1px solid var(--border)" }}>
-                                  ${(u.globalKeyCost || 0).toFixed(4)}
+                              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(139, 92, 246, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-primary)" }}>🌍</div>
+                                <div>
+                                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Globalny</div>
+                                  <div style={{ fontWeight: "bold" }}>${(u.globalKeyCost || 0).toFixed(4)}</div>
                                 </div>
                               </div>
                             )}
                           </td>
-                          <td style={{ padding: "0.5rem" }}>
+                          <td style={{ padding: "1rem 1.5rem", verticalAlign: "middle" }}>
                             {u.userSubscription ? (
-                              <div style={{ fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "0.1rem" }}>
-                                <span>Sprawdzeń: <strong>{u.userSubscription.checkedRemaining}</strong></span>
-                                <span>Generacji: <strong>{u.userSubscription.generatedRemaining}</strong></span>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                                <div style={{ display: "flex", gap: "1rem" }}>
+                                  <span style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.2rem" }} title="Limity sprawdzeń">
+                                    <span style={{ color: "var(--accent-primary)" }}>✓</span> <strong>{u.userSubscription.checkedRemaining}</strong>
+                                  </span>
+                                  <span style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.2rem" }} title="Limity generacji">
+                                    <span style={{ color: "var(--accent-primary)" }}>✨</span> <strong>{u.userSubscription.generatedRemaining}</strong>
+                                  </span>
+                                </div>
                                 {u.userSubscription.plan && (
-                                  <span style={{ color: "var(--accent-primary)", fontSize: "0.75rem", marginTop: "2px" }}>
+                                  <span style={{ fontSize: "0.7rem", color: "var(--accent-primary)", background: "rgba(139, 92, 246, 0.1)", padding: "0.2rem 0.5rem", borderRadius: "4px", width: "fit-content", textTransform: "uppercase", letterSpacing: "0.5px", border: "1px solid rgba(139, 92, 246, 0.2)" }}>
                                     {u.userSubscription.plan.name}
                                   </span>
                                 )}
                               </div>
                             ) : (
-                              <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Brak portfela</span>
+                              <span style={{ fontSize: "0.85rem", color: "var(--text-tertiary)", fontStyle: "italic" }}>Brak aktywnego portfela</span>
                             )}
                           </td>
-                          <td style={{ padding: "0.5rem" }}>{u._count.questionSets}</td>
-                          <td style={{ padding: "0.5rem" }}>{u._count.sessions}</td>
-                          <td style={{ padding: "0.5rem", display: "flex", gap: "0.5rem" }}>
-                            <button 
-                              onClick={() => handleEditUserClick(u)}
-                              className="btn btn-secondary" 
-                              style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
-                            >
-                              Edytuj
-                            </button>
-                            <button 
-                              onClick={() => handleOpenLimitsModal(u)}
-                              className="btn btn-primary" 
-                              style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem", background: "var(--accent-primary)", border: "none" }}
-                            >
-                              Portfel
-                            </button>
-                            {/* Protect admin from deleting themselves via UI */}
-                            {session?.user?.id !== u.id && (
-                              <button 
-                                onClick={() => handleDeleteUser(u.id, u.email)}
-                                className="btn btn-danger" 
-                                style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
-                              >
-                                Usuń
+                          <td style={{ padding: "1rem 1.5rem", verticalAlign: "middle", textAlign: "center", fontWeight: "bold" }}>{u._count.questionSets}</td>
+                          <td style={{ padding: "1rem 1.5rem", verticalAlign: "middle", textAlign: "center", fontWeight: "bold" }}>{u._count.sessions}</td>
+                          <td style={{ padding: "1rem 1.5rem", verticalAlign: "middle", textAlign: "center" }}>
+                            <div style={{ display: "flex", gap: "0.8rem", justifyContent: "center" }}>
+                              <button onClick={() => handleEditUserClick(u)} className="btn btn-secondary" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                ✏️ <span className="hide-on-mobile">Edytuj</span>
                               </button>
-                            )}
+                              <button onClick={() => handleOpenLimitsModal(u)} className="btn btn-primary" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                💳 <span className="hide-on-mobile">Portfel</span>
+                              </button>
+                              {session?.user?.id !== u.id && (
+                                <button onClick={() => handleDeleteUser(u.id, u.email)} className="btn btn-danger" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.3rem", background: "rgba(239, 68, 68, 0.1)", color: "var(--error-color)", border: "1px solid rgba(239, 68, 68, 0.2)" }}>
+                                  🗑️ <span className="hide-on-mobile">Usuń</span>
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
                       {users.length === 0 && (
                         <tr>
-                          <td colSpan={7} style={{ textAlign: "center", padding: "1rem" }}>Brak użytkowników.</td>
+                          <td colSpan={7} style={{ textAlign: "center", padding: "3rem 1rem", color: "var(--text-secondary)" }}>
+                            Brak użytkowników.
+                          </td>
                         </tr>
                       )}
                     </tbody>
