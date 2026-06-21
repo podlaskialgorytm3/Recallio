@@ -343,7 +343,9 @@ export default function DashboardPage() {
                 <div className="set-card-inner">
                   {/* Header: title + actions */}
                   <div className="set-card-header">
-                    <h3 className="set-card-title">{set.name}</h3>
+                    <h3 className="set-card-title" title={set.name}>
+                      {set.name.length > 50 ? set.name.slice(0, 50) + "..." : set.name}
+                    </h3>
                     <div className="set-card-header-actions">
                       <button
                         onClick={() => handleToggleVisibility(set.id, set.isPublic)}
