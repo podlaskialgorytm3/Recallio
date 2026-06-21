@@ -4168,3 +4168,37 @@ tbody tr:last-child td {
     min-width: 44px;
   }
 }
+
+/* ========== DASHBOARD TABS ========== */
+
+.dashboard-tabs {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: var(--space-md);
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: var(--space-sm) var(--space-lg);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.tab-btn:hover {
+  background: var(--bg-glass-hover);
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background: var(--accent-gradient);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
