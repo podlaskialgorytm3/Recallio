@@ -68,12 +68,21 @@ export async function POST(
       );
     }
 
-    // Grade with AI (requires user's own API key from settings)
+    const apiKeyToUse = user?.geminiApiKey || process.env.GEMINI_API_KEY;
+
+    if (!apiKeyToUse) {
+      return NextResponse.json(
+        { error: "Brak globalnego oraz prywatnego klucza API Gemini." },
+        { status: 400 }
+      );
+    }
+
+    // Grade with AI
     const gradeResult = await gradeAnswer(
       question.question,
       question.answer,
       userAnswer,
-      user?.geminiApiKey || undefined,
+      apiKeyToUse,
       user?.geminiModel || undefined
     );
 

@@ -16,20 +16,33 @@ export async function GET() {
       select: { geminiApiKey: true, geminiModel: true },
     });
 
-    // Check 1: Does user have an API key?
-    if (!user?.geminiApiKey) {
+    // Get user sub for fallback
+    const userSub = await prisma.userSubscription.findUnique({
+      where: { userId: session.user.id }
+    });
+
+    let apiKeyToUse = user?.geminiApiKey;
+    let usingGlobal = false;
+
+    if (!apiKeyToUse && userSub && userSub.checkedRemaining > 0) {
+      apiKeyToUse = process.env.GEMINI_API_KEY;
+      usingGlobal = true;
+    }
+
+    // Check 1: Does user have an API key or limit?
+    if (!apiKeyToUse) {
       return NextResponse.json({
         valid: false,
         error: "no_key",
-        message: "Nie ustawiono klucza API Gemini. Przejdź do Ustawień (⚙️), aby go dodać.",
+        message: "Wyczerpano limity. Dokup pakiet w Cenniku lub ustaw darmowy własny klucz API Gemini w Ustawieniach (⚙️).",
       });
     }
 
     // Check 2: Does the API key actually work?
     try {
-      const genAI = new GoogleGenerativeAI(user.geminiApiKey);
+      const genAI = new GoogleGenerativeAI(apiKeyToUse);
       const model = genAI.getGenerativeModel({
-        model: user.geminiModel || "gemini-2.5-flash",
+        model: user?.geminiModel || "gemini-2.5-flash",
       });
       const result = await model.generateContent("Odpowiedz jednym słowem: OK");
       const text = result.response.text();
@@ -37,14 +50,15 @@ export async function GET() {
       if (text) {
         return NextResponse.json({
           valid: true,
-          model: user.geminiModel || "gemini-2.5-flash",
+          model: user?.geminiModel || "gemini-2.5-flash",
+          usingGlobal,
         });
       }
 
       return NextResponse.json({
         valid: false,
         error: "empty_response",
-        message: "Klucz API nie zwrócił odpowiedzi. Sprawdź klucz w Ustawieniach (⚙️).",
+        message: "Klucz API nie zwrócił odpowiedzi. Sprawdź status limitów lub klucza.",
       });
     } catch (apiError: unknown) {
       const message = apiError instanceof Error ? apiError.message : "Nieznany błąd";
