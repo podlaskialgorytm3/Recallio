@@ -46,6 +46,10 @@ export default function Navbar() {
     { href: "/settings", label: "Ustawienia", icon: "⚙️" },
   ];
 
+  if ((session.user as any).role === "ADMIN") {
+    links.push({ href: "/admin", label: "Admin", icon: "🛡️" });
+  }
+
   return (
     <>
       <nav className="navbar">
