@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -15,7 +15,7 @@ interface Plan {
   resetPeriodDays: number | null;
 }
 
-export default function PricingPage() {
+function PricingContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -147,5 +147,18 @@ export default function PricingPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={
+      <div className="loading-container" style={{ minHeight: "80vh" }}>
+        <div className="loading-spinner" />
+        <p className="loading-text">Ładowanie cennika...</p>
+      </div>
+    }>
+      <PricingContent />
+    </Suspense>
   );
 }
