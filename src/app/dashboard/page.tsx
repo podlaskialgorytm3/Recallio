@@ -288,17 +288,11 @@ export default function DashboardPage() {
                   <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Pytania do wygenerowania</span>
                   <span style={{ fontWeight: "bold" }}>{wallet.generatedRemaining}</span>
                 </div>
-                <div style={{ width: "100%", height: "8px", background: "var(--border-color)", borderRadius: "4px", overflow: "hidden" }}>
-                  <div style={{ width: `${Math.min(100, (wallet.generatedRemaining / 100) * 100)}%`, height: "100%", background: "var(--accent-primary)", borderRadius: "4px" }} />
-                </div>
               </div>
               <div style={{ flex: 1, minWidth: "200px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                   <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>Pytania do sprawdzenia</span>
                   <span style={{ fontWeight: "bold" }}>{wallet.checkedRemaining}</span>
-                </div>
-                <div style={{ width: "100%", height: "8px", background: "var(--border-color)", borderRadius: "4px", overflow: "hidden" }}>
-                  <div style={{ width: `${Math.min(100, (wallet.checkedRemaining / 100) * 100)}%`, height: "100%", background: "var(--success-color)", borderRadius: "4px" }} />
                 </div>
               </div>
               {wallet.generatedRemaining === 0 && wallet.checkedRemaining === 0 && (
