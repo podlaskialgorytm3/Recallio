@@ -43,6 +43,7 @@ export default function Navbar() {
     { href: "/sets/create", label: "Kreacja zestawu", icon: "➕" },
     { href: "/explore", label: "Przeglądaj", icon: "🌍" },
     { href: "/history", label: "Historia", icon: "📋" },
+    { href: "/pricing", label: "Cennik / Plany", icon: "💳" },
     { href: "/settings", label: "Ustawienia", icon: "⚙️" },
   ];
 
