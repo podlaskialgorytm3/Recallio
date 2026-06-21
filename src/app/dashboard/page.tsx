@@ -34,6 +34,11 @@ export default function DashboardPage() {
   const [wallet, setWallet] = useState<{hasOwnKey: boolean; checkedRemaining: number; generatedRemaining: number} | null>(null);
   const [fulfillmentMsg, setFulfillmentMsg] = useState("");
 
+  // Billing Modal State
+  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
+  const [billingData, setBillingData] = useState<any>(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+
   const fetchData = useCallback(async () => {
     try {
       const [setsRes, historyRes, walletRes] = await Promise.all([
@@ -182,6 +187,22 @@ export default function DashboardPage() {
     }
   };
 
+  const handleOpenBilling = async () => {
+    setIsBillingModalOpen(true);
+    setBillingLoading(true);
+    try {
+      const res = await fetch("/api/user/billing");
+      if (res.ok) {
+        const data = await res.json();
+        setBillingData(data);
+      }
+    } catch (err) {
+      console.error("Error fetching billing:", err);
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="loading-container" style={{ minHeight: "80vh" }}>
@@ -233,9 +254,18 @@ export default function DashboardPage() {
       {/* Wallet Widget */}
       {wallet && (
         <div className="card-static animate-fade-in-up" style={{ marginBottom: "2rem", padding: "1.5rem" }}>
-          <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span>💳</span> Twój Portfel AI
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h2 style={{ fontSize: "1.2rem", display: "flex", alignItems: "center", gap: "0.5rem", margin: 0 }}>
+              <span>💳</span> Twój Portfel AI
+            </h2>
+            <button 
+              onClick={handleOpenBilling}
+              className="btn btn-secondary" 
+              style={{ fontSize: "0.85rem", padding: "0.4rem 0.8rem" }}
+            >
+              🧾 Historia i zarządzanie
+            </button>
+          </div>
           {wallet.hasOwnKey ? (
             <div style={{ background: "rgba(34, 197, 94, 0.1)", border: "1px solid var(--success-color)", padding: "1rem", borderRadius: "8px", color: "var(--success-color)", fontWeight: "bold" }}>
               Korzystasz z własnego klucza API Gemini. Nielimitowany dostęp do generowania i sprawdzania pytań!
@@ -402,6 +432,75 @@ export default function DashboardPage() {
           })}
         </div>
       )}
+
+      {/* Billing Modal */}
+      {isBillingModalOpen && (
+        <div className="modal-overlay" style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%", 
+          backgroundColor: "rgba(0, 0, 0, 0.7)", display: "flex", justifyContent: "center", 
+          alignItems: "center", zIndex: 1000, padding: "1rem"
+        }}>
+          <div className="card-static animate-scale-in" style={{ width: "100%", maxWidth: "600px", padding: "2rem", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h3 style={{ margin: 0 }}>Historia i zarządzanie</h3>
+              <button onClick={() => setIsBillingModalOpen(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-secondary)" }}>&times;</button>
+            </div>
+
+            {billingLoading ? (
+              <div style={{ textAlign: "center", padding: "2rem" }}>
+                <div className="loading-spinner" style={{ margin: "0 auto" }} />
+                <p style={{ marginTop: "1rem", color: "var(--text-secondary)" }}>Ładowanie danych...</p>
+              </div>
+            ) : billingData ? (
+              <>
+                <div style={{ background: "var(--bg-secondary)", padding: "1.5rem", borderRadius: "12px", marginBottom: "2rem" }}>
+                  <h4 style={{ marginBottom: "0.5rem", color: "var(--text-secondary)", fontSize: "0.9rem", textTransform: "uppercase", letterSpacing: "1px" }}>Twój aktywny pakiet</h4>
+                  {billingData.activePlan ? (
+                    <div>
+                      <p style={{ fontSize: "1.2rem", fontWeight: "bold", color: "var(--accent-primary)", marginBottom: "0.5rem" }}>
+                        {billingData.activePlan.name}
+                      </p>
+                      <p style={{ fontSize: "0.9rem" }}>Otrzymano: {billingData.activePlan.checkLimit} sprawdzeń / {billingData.activePlan.generateLimit} generacji</p>
+                    </div>
+                  ) : (
+                    <p>Brak ostatnio przypisanego pakietu. Możesz wykupić nowy w <Link href="/pricing" style={{ color: "var(--accent-primary)" }} onClick={() => setIsBillingModalOpen(false)}>Cenniku</Link>.</p>
+                  )}
+                </div>
+
+                <h4 style={{ marginBottom: "1rem", color: "var(--text-secondary)", fontSize: "0.9rem", textTransform: "uppercase", letterSpacing: "1px" }}>Historia transakcji</h4>
+                {billingData.history && billingData.history.length > 0 ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+                    {billingData.history.map((item: any) => (
+                      <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-color)", padding: "1rem", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
+                        <div>
+                          <p style={{ fontWeight: "bold", marginBottom: "0.2rem" }}>{item.plan?.name || "Nieznany plan"}</p>
+                          <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                            {new Date(item.purchasedAt).toLocaleString("pl-PL")}
+                          </p>
+                        </div>
+                        <div style={{ fontWeight: "bold", color: "var(--success-color)", textAlign: "right" }}>
+                          {item.price > 0 ? `${item.price} PLN` : "Darmowe"}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ color: "var(--text-secondary)" }}>Nie dokonałeś jeszcze żadnych zakupów.</p>
+                )}
+              </>
+            ) : (
+              <p style={{ color: "var(--error-color)" }}>Nie udało się załadować danych.</p>
+            )}
+
+            <div style={{ marginTop: "2rem", display: "flex", justifyContent: "flex-end" }}>
+              <button onClick={() => setIsBillingModalOpen(false)} className="btn btn-secondary">
+                Zamknij
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
