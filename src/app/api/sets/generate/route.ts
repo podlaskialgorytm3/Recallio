@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { addTokensCost } from "@/lib/billing";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -28,15 +29,17 @@ export async function POST(req: Request) {
       select: { geminiApiKey: true, geminiModel: true },
     });
 
-    if (!user?.geminiApiKey) {
+    const effectiveModel = user?.geminiModel || "gemini-2.5-flash";
+    const apiKeyToUse = user?.geminiApiKey || process.env.GEMINI_API_KEY;
+
+    if (!apiKeyToUse) {
       return NextResponse.json(
-        { error: "Brak klucza API Gemini. Skonfiguruj swój klucz API w Ustawieniach (⚙️)." },
+        { error: "Brak globalnego oraz prywatnego klucza API Gemini." },
         { status: 400 }
       );
     }
 
-    const effectiveModel = user.geminiModel || "gemini-2.5-flash";
-    const genAI = new GoogleGenerativeAI(user.geminiApiKey);
+    const genAI = new GoogleGenerativeAI(apiKeyToUse);
 
     const parts: any[] = [];
     
@@ -98,6 +101,16 @@ export async function POST(req: Request) {
 
     const result = await model.generateContent(parts);
     const text = result.response.text().trim();
+    const usage = result.response.usageMetadata;
+
+    if (usage) {
+      await addTokensCost(
+        session.user.id,
+        usage.promptTokenCount,
+        usage.candidatesTokenCount,
+        !!user?.geminiApiKey
+      );
+    }
     
     let parsed;
     try {

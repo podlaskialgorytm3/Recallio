@@ -18,6 +18,9 @@ export async function GET() {
         name: true,
         role: true,
         createdAt: true,
+        globalKeyCost: true,
+        ownKeyCost: true,
+        geminiApiKey: true,
         _count: {
           select: { questionSets: true, sessions: true }
         }
@@ -25,7 +28,15 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json(users);
+    const mappedUsers = users.map(u => {
+      const { geminiApiKey, ...rest } = u;
+      return {
+        ...rest,
+        hasOwnKey: !!geminiApiKey
+      };
+    });
+
+    return NextResponse.json(mappedUsers);
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json(

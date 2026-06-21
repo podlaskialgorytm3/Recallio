@@ -11,6 +11,9 @@ interface AdminUser {
   name: string | null;
   role: string;
   createdAt: string;
+  globalKeyCost: number;
+  ownKeyCost: number;
+  hasOwnKey: boolean;
   _count: {
     questionSets: number;
     sessions: number;
@@ -208,66 +211,100 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="animate-fade-in-up" style={{ opacity: 0, animationDelay: "0.2s" }}>
-        {activeTab === "users" && (
-          <div className="card-static">
-            <h3>Lista Użytkowników</h3>
-            <div className="table-responsive" style={{ marginTop: "1rem" }}>
-              <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
-                    <th style={{ padding: "0.5rem" }}>Email</th>
-                    <th style={{ padding: "0.5rem" }}>Imię</th>
-                    <th style={{ padding: "0.5rem" }}>Rola</th>
-                    <th style={{ padding: "0.5rem" }}>Utworzono</th>
-                    <th style={{ padding: "0.5rem" }}>Zestawy</th>
-                    <th style={{ padding: "0.5rem" }}>Sesje</th>
-                    <th style={{ padding: "0.5rem" }}>Akcje</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map(u => (
-                    <tr key={u.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                      <td style={{ padding: "0.5rem" }}>{u.email}</td>
-                      <td style={{ padding: "0.5rem" }}>{u.name || "-"}</td>
-                      <td style={{ padding: "0.5rem" }}>
-                        <span className={`badge ${u.role === 'ADMIN' ? 'badge-warning' : 'badge-info'}`}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td style={{ padding: "0.5rem" }}>{new Date(u.createdAt).toLocaleDateString()}</td>
-                      <td style={{ padding: "0.5rem" }}>{u._count.questionSets}</td>
-                      <td style={{ padding: "0.5rem" }}>{u._count.sessions}</td>
-                      <td style={{ padding: "0.5rem", display: "flex", gap: "0.5rem" }}>
-                        <button 
-                          onClick={() => handleEditUserClick(u)}
-                          className="btn btn-secondary" 
-                          style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
-                        >
-                          Edytuj
-                        </button>
-                        {/* Protect admin from deleting themselves via UI */}
-                        {session?.user?.id !== u.id && (
-                          <button 
-                            onClick={() => handleDeleteUser(u.id, u.email)}
-                            className="btn btn-danger" 
-                            style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
-                          >
-                            Usuń
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {users.length === 0 && (
-                    <tr>
-                      <td colSpan={7} style={{ textAlign: "center", padding: "1rem" }}>Brak użytkowników.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {activeTab === "users" && (() => {
+          const totalGlobalCost = users.reduce((sum, u) => sum + (u.globalKeyCost || 0), 0);
+          return (
+            <>
+              <div className="stats-row animate-fade-in-up" style={{ opacity: 0, animationDelay: "0.15s", marginBottom: "var(--space-lg)" }}>
+                <div className="stat-card">
+                  <div className="stat-value" style={{ color: "var(--accent-primary)" }}>
+                    ${totalGlobalCost.toFixed(4)}
+                  </div>
+                  <div className="stat-label">Całkowity koszt klucza aplikacji (API)</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-value">{users.length}</div>
+                  <div className="stat-label">Wszyscy użytkownicy</div>
+                </div>
+              </div>
+
+              <div className="card-static">
+                <h3>Lista Użytkowników</h3>
+                <div className="table-responsive" style={{ marginTop: "1rem" }}>
+                  <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+                        <th style={{ padding: "0.5rem" }}>Email</th>
+                        <th style={{ padding: "0.5rem" }}>Imię</th>
+                        <th style={{ padding: "0.5rem" }}>Rola</th>
+                        <th style={{ padding: "0.5rem" }}>Koszty AI</th>
+                        <th style={{ padding: "0.5rem" }}>Zestawy</th>
+                        <th style={{ padding: "0.5rem" }}>Sesje</th>
+                        <th style={{ padding: "0.5rem" }}>Akcje</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map(u => (
+                        <tr key={u.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                          <td style={{ padding: "0.5rem" }}>{u.email}</td>
+                          <td style={{ padding: "0.5rem" }}>{u.name || "-"}</td>
+                          <td style={{ padding: "0.5rem" }}>
+                            <span className={`badge ${u.role === 'ADMIN' ? 'badge-warning' : 'badge-info'}`}>
+                              {u.role}
+                            </span>
+                          </td>
+                          <td style={{ padding: "0.5rem" }}>
+                            {u.hasOwnKey ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                                <span style={{ fontSize: "0.8rem", color: "var(--success)" }}>Własny klucz</span>
+                                <div style={{ background: "rgba(16, 185, 129, 0.2)", borderRadius: "4px", padding: "0.2rem 0.5rem", fontSize: "0.85rem", color: "var(--success)", border: "1px solid rgba(16,185,129,0.3)" }}>
+                                  ${(u.ownKeyCost || 0).toFixed(4)}
+                                </div>
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                                <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>Klucz Globalny</span>
+                                <div style={{ background: "var(--bg-glass-hover)", borderRadius: "4px", padding: "0.2rem 0.5rem", fontSize: "0.85rem", color: "var(--accent-primary)", border: "1px solid var(--border)" }}>
+                                  ${(u.globalKeyCost || 0).toFixed(4)}
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ padding: "0.5rem" }}>{u._count.questionSets}</td>
+                          <td style={{ padding: "0.5rem" }}>{u._count.sessions}</td>
+                          <td style={{ padding: "0.5rem", display: "flex", gap: "0.5rem" }}>
+                            <button 
+                              onClick={() => handleEditUserClick(u)}
+                              className="btn btn-secondary" 
+                              style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                            >
+                              Edytuj
+                            </button>
+                            {/* Protect admin from deleting themselves via UI */}
+                            {session?.user?.id !== u.id && (
+                              <button 
+                                onClick={() => handleDeleteUser(u.id, u.email)}
+                                className="btn btn-danger" 
+                                style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                              >
+                                Usuń
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                      {users.length === 0 && (
+                        <tr>
+                          <td colSpan={7} style={{ textAlign: "center", padding: "1rem" }}>Brak użytkowników.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          );
+        })()}
 
         {activeTab === "sets" && (
           <div className="card-static">

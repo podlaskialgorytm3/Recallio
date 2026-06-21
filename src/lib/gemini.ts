@@ -3,6 +3,10 @@ import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 interface GradeResult {
   score: number;
   feedback: string;
+  usage?: {
+    promptTokenCount: number;
+    candidatesTokenCount: number;
+  };
 }
 
 export async function gradeAnswer(
@@ -60,6 +64,10 @@ Odpowiedz w JSON z polami "score" (liczba 0-100) i "feedback" (2-3 zdania po pol
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text().trim();
+    const usage = response.usageMetadata ? {
+      promptTokenCount: response.usageMetadata.promptTokenCount,
+      candidatesTokenCount: response.usageMetadata.candidatesTokenCount,
+    } : undefined;
 
     // Attempt 1: direct JSON.parse (should work with responseMimeType)
     try {
@@ -67,6 +75,7 @@ Odpowiedz w JSON z polami "score" (liczba 0-100) i "feedback" (2-3 zdania po pol
       return {
         score: Math.min(100, Math.max(0, Math.round(parsed.score))),
         feedback: parsed.feedback || "Brak komentarza.",
+        usage,
       };
     } catch {
       // Attempt 2: extract JSON object from text and sanitize
@@ -82,6 +91,7 @@ Odpowiedz w JSON z polami "score" (liczba 0-100) i "feedback" (2-3 zdania po pol
           return {
             score: Math.min(100, Math.max(0, Math.round(parsed.score))),
             feedback: parsed.feedback || "Brak komentarza.",
+            usage,
           };
         } catch {
           // Attempt 3: regex extraction as last resort
@@ -93,6 +103,7 @@ Odpowiedz w JSON z polami "score" (liczba 0-100) i "feedback" (2-3 zdania po pol
               feedback: feedbackMatch
                 ? feedbackMatch[1].replace(/\\"/g, '"').replace(/\\n/g, " ")
                 : "Brak komentarza.",
+              usage,
             };
           }
         }

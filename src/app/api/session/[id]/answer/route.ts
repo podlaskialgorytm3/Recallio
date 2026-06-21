@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { gradeAnswer } from "@/lib/gemini";
+import { addTokensCost } from "@/lib/billing";
 
 export async function POST(
   req: Request,
@@ -63,6 +64,16 @@ export async function POST(
       user?.geminiApiKey || undefined,
       user?.geminiModel || undefined
     );
+
+    // Track AI cost
+    if (gradeResult.usage) {
+      await addTokensCost(
+        session.user.id,
+        gradeResult.usage.promptTokenCount,
+        gradeResult.usage.candidatesTokenCount,
+        !!user?.geminiApiKey
+      );
+    }
 
     // Save the answer
     const roundAnswer = await prisma.roundAnswer.create({
