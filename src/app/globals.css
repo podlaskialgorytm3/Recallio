@@ -631,6 +631,9 @@ h3 {
   animation: setCardEnter 0.5s ease-out forwards;
   transition: transform 300ms ease-out, box-shadow 300ms ease-out;
   will-change: transform;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .set-card:hover {
@@ -682,6 +685,9 @@ h3 {
   padding: var(--space-xl);
   transition: border-color 300ms ease-out, box-shadow 300ms ease-out, background 300ms ease-out;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .set-card:hover .set-card-inner {
@@ -726,6 +732,10 @@ h3 {
   line-height: 1.35;
   flex: 1;
   letter-spacing: -0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .set-card-header-actions {
@@ -831,8 +841,8 @@ h3 {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  margin-top: var(--space-md);
-  padding: var(--space-sm) 0;
+  margin-top: auto;
+  padding: var(--space-md) 0 var(--space-sm) 0;
   border-top: 1px solid var(--border);
   position: relative;
   z-index: 1;
