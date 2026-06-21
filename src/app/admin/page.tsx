@@ -73,8 +73,6 @@ export default function AdminDashboardPage() {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [editEmail, setEditEmail] = useState("");
   const [editName, setEditName] = useState("");
-  const [editCheckedLimit, setEditCheckedLimit] = useState(0);
-  const [editGeneratedLimit, setEditGeneratedLimit] = useState(0);
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState("");
 
@@ -91,7 +89,7 @@ export default function AdminDashboardPage() {
   // Limits Modal State
   const [isLimitsModalOpen, setIsLimitsModalOpen] = useState(false);
   const [limitsUser, setLimitsUser] = useState<AdminUser | null>(null);
-  const [limitsAction, setLimitsAction] = useState<"ADD_LIMITS" | "ASSIGN_PLAN">("ADD_LIMITS");
+  const [limitsAction, setLimitsAction] = useState<"EDIT_LIMITS" | "ASSIGN_PLAN">("EDIT_LIMITS");
   const [limitsAddChecked, setLimitsAddChecked] = useState(0);
   const [limitsAddGenerated, setLimitsAddGenerated] = useState(0);
   const [limitsPlanId, setLimitsPlanId] = useState("");
@@ -167,8 +165,6 @@ export default function AdminDashboardPage() {
     setEditingUser(user);
     setEditEmail(user.email);
     setEditName(user.name || "");
-    setEditCheckedLimit(user.userSubscription?.checkedRemaining || 0);
-    setEditGeneratedLimit(user.userSubscription?.generatedRemaining || 0);
     setEditError("");
   };
 
@@ -181,12 +177,7 @@ export default function AdminDashboardPage() {
       const res = await fetch(`/api/admin/users/${editingUser.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          email: editEmail, 
-          name: editName,
-          checkedRemaining: editCheckedLimit,
-          generatedRemaining: editGeneratedLimit
-        }),
+        body: JSON.stringify({ email: editEmail, name: editName }),
       });
 
       if (!res.ok) {
@@ -271,9 +262,9 @@ export default function AdminDashboardPage() {
 
   const handleOpenLimitsModal = (user: AdminUser) => {
     setLimitsUser(user);
-    setLimitsAction("ADD_LIMITS");
-    setLimitsAddChecked(0);
-    setLimitsAddGenerated(0);
+    setLimitsAction("EDIT_LIMITS");
+    setLimitsAddChecked(user.userSubscription?.checkedRemaining || 0);
+    setLimitsAddGenerated(user.userSubscription?.generatedRemaining || 0);
     setLimitsPlanId("");
     setLimitsError("");
     setIsLimitsModalOpen(true);
@@ -698,7 +689,7 @@ export default function AdminDashboardPage() {
           backgroundColor: "rgba(0, 0, 0, 0.7)", display: "flex", justifyContent: "center", 
           alignItems: "center", zIndex: 1000
         }}>
-          <div className="card-static animate-scale-in" style={{ width: "90%", maxWidth: "450px", padding: "2rem" }}>
+          <div className="card-static animate-scale-in" style={{ width: "90%", maxWidth: "550px", padding: "2rem", maxHeight: "90vh", overflowY: "auto", boxSizing: "border-box" }}>
             <h3 style={{ marginBottom: "1rem" }}>Edytuj użytkownika</h3>
             
             {editError && (
@@ -717,7 +708,7 @@ export default function AdminDashboardPage() {
               />
             </div>
 
-            <div className="input-group" style={{ marginBottom: "1rem" }}>
+            <div className="input-group" style={{ marginBottom: "1.5rem" }}>
               <label>Imię / Pseudonim</label>
               <input 
                 type="text" 
@@ -725,27 +716,6 @@ export default function AdminDashboardPage() {
                 value={editName} 
                 onChange={(e) => setEditName(e.target.value)} 
               />
-            </div>
-
-            <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-              <div className="input-group" style={{ flex: 1 }}>
-                <label>Limit Sprawdzeń</label>
-                <input 
-                  type="number" 
-                  className="input" 
-                  value={editCheckedLimit} 
-                  onChange={(e) => setEditCheckedLimit(Number(e.target.value))} 
-                />
-              </div>
-              <div className="input-group" style={{ flex: 1 }}>
-                <label>Limit Generacji</label>
-                <input 
-                  type="number" 
-                  className="input" 
-                  value={editGeneratedLimit} 
-                  onChange={(e) => setEditGeneratedLimit(Number(e.target.value))} 
-                />
-              </div>
             </div>
 
             <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
@@ -775,7 +745,7 @@ export default function AdminDashboardPage() {
           backgroundColor: "rgba(0, 0, 0, 0.7)", display: "flex", justifyContent: "center", 
           alignItems: "center", zIndex: 1000
         }}>
-          <div className="card-static animate-scale-in" style={{ width: "90%", maxWidth: "500px", padding: "2rem" }}>
+          <div className="card-static animate-scale-in" style={{ width: "90%", maxWidth: "600px", padding: "2rem", maxHeight: "90vh", overflowY: "auto", boxSizing: "border-box" }}>
             <h3 style={{ marginBottom: "1rem" }}>Zarządzaj portfelem: {limitsUser.email}</h3>
             
             {limitsError && (
@@ -785,26 +755,26 @@ export default function AdminDashboardPage() {
             )}
 
             <div className="dashboard-tabs" style={{ marginBottom: "1.5rem", borderBottom: "none" }}>
-              <button className={`tab-btn ${limitsAction === "ADD_LIMITS" ? "active" : ""}`} onClick={() => setLimitsAction("ADD_LIMITS")}>
-                Dodaj Limity
+              <button className={`tab-btn ${limitsAction === "EDIT_LIMITS" ? "active" : ""}`} onClick={() => setLimitsAction("EDIT_LIMITS")}>
+                Edytuj Limity
               </button>
               <button className={`tab-btn ${limitsAction === "ASSIGN_PLAN" ? "active" : ""}`} onClick={() => setLimitsAction("ASSIGN_PLAN")}>
                 Przypisz Plan
               </button>
             </div>
 
-            {limitsAction === "ADD_LIMITS" && (
+            {limitsAction === "EDIT_LIMITS" && (
               <>
                 <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
-                  Obecnie ma: {limitsUser.userSubscription?.checkedRemaining || 0} sprawdzeń i {limitsUser.userSubscription?.generatedRemaining || 0} generacji.
+                  Modyfikujesz obecny portfel użytkownika (nadpisujesz stany).
                 </p>
-                <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-                  <div className="input-group" style={{ flex: 1 }}>
-                    <label>Dodaj Sprawdzenia</label>
+                <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+                  <div className="input-group" style={{ flex: "1 1 200px" }}>
+                    <label>Obecne Sprawdzenia</label>
                     <input type="number" className="input" value={limitsAddChecked} onChange={(e) => setLimitsAddChecked(Number(e.target.value))} />
                   </div>
-                  <div className="input-group" style={{ flex: 1 }}>
-                    <label>Dodaj Generacje</label>
+                  <div className="input-group" style={{ flex: "1 1 200px" }}>
+                    <label>Obecne Generacje</label>
                     <input type="number" className="input" value={limitsAddGenerated} onChange={(e) => setLimitsAddGenerated(Number(e.target.value))} />
                   </div>
                 </div>
@@ -815,9 +785,9 @@ export default function AdminDashboardPage() {
               <div className="input-group" style={{ marginBottom: "1.5rem" }}>
                 <label>Wybierz Pakiet z listy</label>
                 <select className="input" value={limitsPlanId} onChange={(e) => setLimitsPlanId(e.target.value)}>
-                  <option value="">-- Wybierz plan --</option>
+                  <option value="" style={{ color: "black" }}>-- Wybierz plan --</option>
                   {plans.filter(p => p.isActive).map(p => (
-                    <option key={p.id} value={p.id}>{p.name} ({p.checkLimit}Z / {p.generateLimit}G)</option>
+                    <option key={p.id} value={p.id} style={{ color: "black" }}>{p.name} ({p.checkLimit}Z / {p.generateLimit}G)</option>
                   ))}
                 </select>
                 <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>

@@ -26,21 +26,21 @@ export async function PATCH(
       return NextResponse.json({ error: "Nie znaleziono użytkownika" }, { status: 404 });
     }
 
-    // Action: "ADD_LIMITS" or "ASSIGN_PLAN"
-    if (action === "ADD_LIMITS") {
-      const checkedToAdd = Number(addChecked) || 0;
-      const generatedToAdd = Number(addGenerated) || 0;
+    // Action: "EDIT_LIMITS" or "ASSIGN_PLAN"
+    if (action === "EDIT_LIMITS" || action === "ADD_LIMITS") {
+      const newChecked = Number(addChecked) || 0;
+      const newGenerated = Number(addGenerated) || 0;
 
       await prisma.userSubscription.upsert({
         where: { userId },
         create: {
           userId,
-          checkedRemaining: 10 + checkedToAdd,
-          generatedRemaining: 10 + generatedToAdd,
+          checkedRemaining: newChecked,
+          generatedRemaining: newGenerated,
         },
         update: {
-          checkedRemaining: { increment: checkedToAdd },
-          generatedRemaining: { increment: generatedToAdd },
+          checkedRemaining: newChecked,
+          generatedRemaining: newGenerated,
         }
       });
 
