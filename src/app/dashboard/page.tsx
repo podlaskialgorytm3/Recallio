@@ -246,7 +246,18 @@ export default function DashboardPage() {
       </div>
 
       {fulfillmentMsg && (
-        <div style={{ background: "var(--success-color)", color: "white", padding: "1rem", borderRadius: "8px", marginBottom: "2rem", textAlign: "center" }}>
+        <div style={{ 
+          background: "rgba(34, 197, 94, 0.15)", 
+          color: "var(--success-color)", 
+          padding: "1rem", 
+          borderRadius: "8px", 
+          marginBottom: "2rem", 
+          textAlign: "center",
+          border: "1px solid var(--success-color)",
+          fontWeight: "bold",
+          boxShadow: "0 0 15px rgba(34, 197, 94, 0.2)",
+          textShadow: "0 0 10px rgba(34, 197, 94, 0.3)"
+        }}>
           {fulfillmentMsg}
         </div>
       )}

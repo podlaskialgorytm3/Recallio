@@ -55,23 +55,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Plan nie istnieje" }, { status: 404 });
     }
 
-    // Update user subscription limits
-    await prisma.userSubscription.upsert({
-      where: { userId },
-      create: {
-        userId,
-        planId,
-        checkedRemaining: plan.checkLimit,
-        generatedRemaining: plan.generateLimit,
-      },
-      update: {
-        planId,
-        checkedRemaining: { increment: plan.checkLimit },
-        generatedRemaining: { increment: plan.generateLimit },
-      }
-    });
-
-    // Record purchase
+    // 1. Record purchase FIRST to prevent race condition multiple increments
     try {
       await prisma.purchaseHistory.create({
         data: {
@@ -89,6 +73,22 @@ export async function POST(req: Request) {
       }
       throw e;
     }
+
+    // 2. Update user subscription limits ONLY if purchase record was successful
+    await prisma.userSubscription.upsert({
+      where: { userId },
+      create: {
+        userId,
+        planId,
+        checkedRemaining: plan.checkLimit,
+        generatedRemaining: plan.generateLimit,
+      },
+      update: {
+        planId,
+        checkedRemaining: { increment: plan.checkLimit },
+        generatedRemaining: { increment: plan.generateLimit },
+      }
+    });
 
     // Save Stripe Customer ID to User
     if (stripeSession.customer && typeof stripeSession.customer === "string") {
