@@ -88,12 +88,12 @@ export default function LoginPage() {
           )}
 
           <div className="input-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email lub Login</label>
             <input
               id="email"
-              type="email"
+              type="text"
               className="input"
-              placeholder="twoj@email.com"
+              placeholder="twoj@email.com lub admin"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

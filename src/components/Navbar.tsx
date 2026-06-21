@@ -24,7 +24,7 @@ export default function Navbar() {
   // Close on route change
   useEffect(() => {
     closeMenu();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   // Lock body scroll when open
@@ -39,11 +39,11 @@ export default function Navbar() {
   const displayName = session.user?.name || session.user?.email || "";
 
   const links = [
-    { href: "/dashboard",   label: "Dashboard",     icon: "🏠" },
+    { href: "/dashboard", label: "Dashboard", icon: "🏠" },
     { href: "/sets/create", label: "Kreacja zestawu", icon: "➕" },
-    { href: "/explore",     label: "Przeglądaj",    icon: "🌍" },
-    { href: "/history",     label: "Historia",      icon: "📋" },
-    { href: "/settings",    label: "Ustawienia",    icon: "⚙️" },
+    { href: "/explore", label: "Przeglądaj", icon: "🌍" },
+    { href: "/history", label: "Historia", icon: "📋" },
+    { href: "/settings", label: "Ustawienia", icon: "⚙️" },
   ];
 
   return (
