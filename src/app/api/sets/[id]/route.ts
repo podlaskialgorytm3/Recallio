@@ -206,9 +206,13 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  const isAdmin = (session.user as any).role === "ADMIN";
 
   const set = await prisma.questionSet.findFirst({
-    where: { id, userId: session.user.id },
+    where: { 
+      id, 
+      ...(isAdmin ? {} : { userId: session.user.id }) 
+    },
   });
 
   if (!set) {

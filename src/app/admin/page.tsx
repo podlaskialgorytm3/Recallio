@@ -84,6 +84,26 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleDeleteSet = async (setId: string, setName: string) => {
+    if (!confirm(`Czy na pewno chcesz usunąć zestaw "${setName}"? Ta operacja jest nieodwracalna.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/sets/${setId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Nie udało się usunąć zestawu.");
+      }
+
+      setSets(prev => prev.filter(s => s.id !== setId));
+    } catch (err: any) {
+      alert(err.message || "Wystąpił błąd podczas usuwania.");
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="loading-container" style={{ minHeight: "80vh" }}>
@@ -193,10 +213,17 @@ export default function AdminDashboardPage() {
                           <span className="badge badge-info">Prywatny</span>
                         )}
                       </td>
-                      <td style={{ padding: "0.5rem" }}>
+                      <td style={{ padding: "0.5rem", display: "flex", gap: "0.5rem" }}>
                         <Link href={`/sets/${s.id}`} className="btn btn-secondary" style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}>
                           Podgląd
                         </Link>
+                        <button 
+                          onClick={() => handleDeleteSet(s.id, s.name)}
+                          className="btn btn-danger" 
+                          style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                        >
+                          Usuń
+                        </button>
                       </td>
                     </tr>
                   ))}
