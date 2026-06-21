@@ -15,10 +15,11 @@ model User {
   lastName     String?
   passwordHash String
   geminiApiKey String?
-  geminiModel   String        @default("gemini-2.5-flash")
-  globalKeyCost Float         @default(0)
-  ownKeyCost    Float         @default(0)
-  role          Role          @default(USER)
+  geminiModel      String            @default("gemini-2.5-flash")
+  globalKeyCost    Float             @default(0)
+  ownKeyCost       Float             @default(0)
+  stripeCustomerId String?           @unique
+  role             Role              @default(USER)
   createdAt     DateTime      @default(now())
   questionSets     QuestionSet[]
   sessions         Session[]
@@ -141,6 +142,7 @@ model PurchaseHistory {
   userId          String
   planId          String
   price           Float
+  stripeSessionId String?  @unique
   purchasedAt     DateTime @default(now())
   
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
