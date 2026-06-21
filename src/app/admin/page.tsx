@@ -42,6 +42,13 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // User Modal State
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editEmail, setEditEmail] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState("");
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -104,6 +111,62 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleEditUserClick = (user: AdminUser) => {
+    setEditingUser(user);
+    setEditEmail(user.email);
+    setEditName(user.name || "");
+    setEditError("");
+  };
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return;
+    setEditLoading(true);
+    setEditError("");
+
+    try {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: editEmail, name: editName }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Nie udało się zaktualizować użytkownika.");
+      }
+
+      const updatedUser = await res.json();
+      
+      setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, email: updatedUser.email, name: updatedUser.name } : u));
+      setEditingUser(null);
+    } catch (err: any) {
+      setEditError(err.message || "Wystąpił błąd.");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userEmail: string) => {
+    if (!confirm(`Czy na pewno chcesz trwale usunąć użytkownika "${userEmail}" oraz wszystkie jego zestawy pytań i historię nauki?\nTa operacja jest NIEODWRACALNA.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Nie udało się usunąć użytkownika.");
+      }
+
+      setUsers(prev => prev.filter(u => u.id !== userId));
+    } catch (err: any) {
+      alert(err.message || "Wystąpił błąd podczas usuwania.");
+    }
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="loading-container" style={{ minHeight: "80vh" }}>
@@ -158,6 +221,7 @@ export default function AdminDashboardPage() {
                     <th style={{ padding: "0.5rem" }}>Utworzono</th>
                     <th style={{ padding: "0.5rem" }}>Zestawy</th>
                     <th style={{ padding: "0.5rem" }}>Sesje</th>
+                    <th style={{ padding: "0.5rem" }}>Akcje</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -173,11 +237,30 @@ export default function AdminDashboardPage() {
                       <td style={{ padding: "0.5rem" }}>{new Date(u.createdAt).toLocaleDateString()}</td>
                       <td style={{ padding: "0.5rem" }}>{u._count.questionSets}</td>
                       <td style={{ padding: "0.5rem" }}>{u._count.sessions}</td>
+                      <td style={{ padding: "0.5rem", display: "flex", gap: "0.5rem" }}>
+                        <button 
+                          onClick={() => handleEditUserClick(u)}
+                          className="btn btn-secondary" 
+                          style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                        >
+                          Edytuj
+                        </button>
+                        {/* Protect admin from deleting themselves via UI */}
+                        {session?.user?.id !== u.id && (
+                          <button 
+                            onClick={() => handleDeleteUser(u.id, u.email)}
+                            className="btn btn-danger" 
+                            style={{ padding: "0.2rem 0.5rem", fontSize: "0.8rem" }}
+                          >
+                            Usuń
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                   {users.length === 0 && (
                     <tr>
-                      <td colSpan={6} style={{ textAlign: "center", padding: "1rem" }}>Brak użytkowników.</td>
+                      <td colSpan={7} style={{ textAlign: "center", padding: "1rem" }}>Brak użytkowników.</td>
                     </tr>
                   )}
                 </tbody>
@@ -238,6 +321,63 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* User Edit Modal */}
+      {editingUser && (
+        <div className="modal-overlay" style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%", 
+          backgroundColor: "rgba(0, 0, 0, 0.7)", display: "flex", justifyContent: "center", 
+          alignItems: "center", zIndex: 1000
+        }}>
+          <div className="card-static animate-scale-in" style={{ width: "90%", maxWidth: "450px", padding: "2rem" }}>
+            <h3 style={{ marginBottom: "1rem" }}>Edytuj użytkownika</h3>
+            
+            {editError && (
+              <div className="auth-error" style={{ marginBottom: "1rem" }}>
+                {editError}
+              </div>
+            )}
+
+            <div className="input-group" style={{ marginBottom: "1rem" }}>
+              <label>Email</label>
+              <input 
+                type="text" 
+                className="input" 
+                value={editEmail} 
+                onChange={(e) => setEditEmail(e.target.value)} 
+              />
+            </div>
+
+            <div className="input-group" style={{ marginBottom: "1.5rem" }}>
+              <label>Imię / Pseudonim</label>
+              <input 
+                type="text" 
+                className="input" 
+                value={editName} 
+                onChange={(e) => setEditName(e.target.value)} 
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
+              <button 
+                onClick={() => setEditingUser(null)} 
+                className="btn btn-secondary" 
+                disabled={editLoading}
+              >
+                Anuluj
+              </button>
+              <button 
+                onClick={handleSaveUser} 
+                className="btn btn-primary" 
+                disabled={editLoading}
+              >
+                {editLoading ? "Zapisywanie..." : "Zapisz zmiany"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
